@@ -1,0 +1,59 @@
+---
+title: Matrix Multiplication Using "For Loops"
+author: Adejumo Ridwan Suleiman
+date: '2021-12-29'
+slug: Matrix multiplication with for loops
+categories: []
+tags: []
+---
+
+<center>    
+*“That's all data is. A gift from yesterday that you receive today to make tomorrow better”*  
+*— Jon Acuff*  
+</center>
+
+<style> body {text-align: justify} </style>
+
+Linear Algebra is a branch of mathematics that deals with vectors and matrices, though some find it difficult, I still find it easier than good old calculus. Vectors and matrices are very important data structures in R, which is why the knowledge of linear algebra is very important. This post is going to use our understanding of "for loops" to explain matrix multiplication in R.  
+Firstly we are going to define two  matrices, `a` which is a (4x3) matrix and `b` which is a (3x4) matrix, multiplying the two matrices will give us `c`  which is a (4x4) matrix.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+a <- matrix(c(9, 4 , 12, 5, 0, 7, 2, 6, 8, 9, 2, 9),
+            nrow = 4, byrow = TRUE)
+
+a
+```
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+b <- matrix(c(5, 4, 2, 5, 2, 7, 2, 1, 8, 3, 2, 6),
+            nrow = 3, byrow = TRUE)
+
+b
+```
+The following code below is a function to perform the matrix multiplication between `a`  and  to `b` produce a matrix `c`.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+mat_mup <- function(a, b){
+  if(ncol(a) != nrow(b)){
+    return("can't multiply")
+  }
+  else{
+    c = matrix(rep(0, nrow(a)*ncol(b)), 
+               nrow = nrow(a))
+    for(i in 1:nrow(a)){
+      for(j in 1:ncol(b)){
+        for(k in 1:nrow(b)){
+          c[i,j] <- c[i,j] + a[i,k]*b[k, j]
+        }
+      }
+    }
+  }
+  return(c)
+}
+```
+In the code above we create a function called `mat_mup`, the function returns "can't multiply" if the number of columns in the matrix `a` does not match the number of rows in matrix `b`. The second condition performs the matrix operation making use of three for loops, the first `for loop` takes `i` values for the number of rows in the matrix `a`, the second `for loop`  takes `j` for the number of columns in matrix `b` and the third `for loop` takes `k` for the number of rows in matrix `b`. The function returns a matrix `c`, the result of multiplying `a` and `b`.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+mat_mup(a,b)
+```
+Imagine having to always do the above just to multiply two matrices. R has a built-in operator that handles matrix multiplication. Ever taught why matrix `a*b` returns an error in R, well I leave that to you to figure out. The `%*%` operator is used to multiply matrices.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+a %*% b
+```
+

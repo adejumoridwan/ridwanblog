@@ -1,0 +1,168 @@
+---
+title: DataCamp Competition - Reporting Sales Data
+author: Adejumo Ridwan Suleiman
+date: '2022-01-27'
+slug: datacamp-competition-reporting-sales-data
+categories: []
+tags: []
+---
+
+## 📖 Problem Statement
+The accounting department of a company that sells motorcycle parts operates three warehouses in a large metropolitan area. The company want's their sales data analysed and want to capture sales by payment method. They also want to know the average unit price for each product line.
+
+## Objectives
+1. What are the total sales for each payment method?
+2. What is the average unit price for each product line?
+3. Create plots to visualize findings for questions 1 and 2.
+4. Investigate further (e.g., average purchase value by client type, total purchase value by product line, etc.)
+5. Summarize the findings.
+
+## 💾 Data Summary
+```{r, warning=F, message=F, results=T}
+#load libraries
+library(tidyverse)
+library(lubridate)
+
+#load data
+df <- read_csv("C:/Users/Adejumo/Downloads/sales_data.csv")
+
+head(df)
+```
+```{r, warning=TRUE, message=F, results=T}
+skimr::skim(df)
+```
+The sales data has the following 1000 items and 8 fields:  
+- "date" - The date, from June to August 2021.    
+- "warehouse" - The company operates three warehouses: North, Central, and West.  
+- "client_type" - There are two types of customers: Retail and Wholesale.  
+- "product_line" - Type of products purchased.  
+- "quantity" - How many items were purchased.  
+- "unit_price" - Price per item sold.  
+- "total" - Total sale = quantity * unit_price.  
+- "payment" - How the client paid: Cash, Credit card, Transfer.  
+There are no missing values in the data.  
+
+## Exploratory Data Analysis
+
+### Total sale for each payment method
+```{r, warning=TRUE, message=F, results=T}
+df %>% 
+  group_by(payment) %>% 
+  summarize(total = sum(total)) 
+```
+Let's visualize the results and see the percentage of total sales in each payment method.
+```{r, warning=TRUE, message=F, results=T}
+df %>% 
+  group_by(payment) %>% 
+  summarize(total = sum(total)) %>% 
+  mutate(perc_sales = (total/sum(total))*100) %>% 
+  ggplot(aes(x = reorder(payment, perc_sales), y = perc_sales, fill = payment)) +
+  geom_col() +
+  geom_text(aes(label = scales::comma(perc_sales))) +
+  xlab("Payment Method") +
+  ylab("Percentage of total Sales")
+```
+55% of total sales were paid through bank transfer, 38% through credit card, just 7% were paid through cash. Most customers prefer to use bank transfer and credit cards for payment.
+
+### Average unit price for each product line
+The average unit price per product line is the calculated by dividing the total number of sales for each product line by the total number of units sold.
+```{r, warning=TRUE, message=F, results=T}
+df %>% 
+  group_by(product_line) %>% 
+  summarize(avg_unit_price = mean(unit_price)) %>% 
+  arrange(desc(avg_unit_price)) %>% 
+  ggplot(aes(x = reorder(product_line, avg_unit_price), 
+             y = avg_unit_price, fill = product_line)) +
+  geom_col() +
+  geom_text(aes(label = scales::comma(avg_unit_price))) +
+  coord_flip() +
+  xlab("Product Line") +
+  ylab("Average Unit Price")
+```
+Products under the Engine product line are more expensive with an average unit price of over 60 dollars, Breaking system having the least expensive products with an average unit price of 17.7 dollars.
+
+### Average purchase value by client type
+The average purchase value(APV) is giving by the total number of sales divided by the number of orders in each client type.
+```{r, warning=TRUE, message=F, results=T}
+df %>% 
+  group_by(client_type) %>% 
+  summarize(avg_pur_value = sum(total)/sum(quantity)) 
+
+```
+Clients who purchase on wholesale have the highest average purchase value of 30.82 dollars while clients in retail have a purchase value of 30.72 dollars. Seems both clients have similar demands but the demand of clients on wholesale is more high.
+
+### Total purchase value by product line.
+This is the total sales made in each product line
+```{r, warning=TRUE, message=F, results=T}
+df %>% 
+  group_by(product_line) %>% 
+  summarize(total_sales = sum(total)) %>% 
+  mutate(perc_sales = total_sales/sum(total_sales)*100) %>% 
+  ggplot(aes(x = reorder(product_line, perc_sales), 
+             y = perc_sales, fill = product_line)) +
+  geom_col() + 
+  coord_flip() +
+  geom_text(aes(label = scales::comma(perc_sales))) +
+  xlab("Product Line") +
+  ylab("Percentage of total sales")
+  
+```
+Most sales were made from products in Suspension and traction which constitute 25.25% of total sales. Products in Engine product line and Miscellaneous have the lowest amount of sales with 13.12% and 9.4% respectively.
+
+### Month with the highest total sales
+```{r, warning=TRUE, message=F, results=T}
+df %>%
+  group_by(month = month(date, label = T)) %>% 
+  summarize(total = sum(total)) %>% 
+  arrange(desc(total))
+
+```
+Though sales dropped in the month of July, it sky rocketed in the month of  August.
+
+### Warehouse with the highest total sales
+```{r, warning=TRUE, message=F, results=T}
+df %>% 
+  group_by(warehouse) %>% 
+  summarize(total_sales = sum(total)) %>% 
+  mutate(perc_sales = (total_sales/sum(total_sales))*100) %>% 
+  ggplot(aes(x = reorder(warehouse, perc_sales),
+             y = perc_sales, fill = warehouse)) +
+  geom_col() +
+  xlab("Warehouse") +
+  ylab("Percentage of total sales") +
+  geom_text(aes(label = scales::comma(perc_sales)))
+
+```
+Warehouse in Central of the metropolitan area have more sales than warehouses in other regions with 49 % of total sales made, which is almost close to half of the total sales. The warehouse in the western region have the lowest amount of sales with 16% of total sales.
+
+## Conclusion
+The company compared to previous months have made a lot of sales  with majority from the warehouse in the central region, this is a good sign indicating increase in sales. Most clients prefer to pay through bank transfer or credit card and this is due to the fact that most of them are wholesale and retail and they purchase in bulk which involves huge amount of money, it is more secure than carrying cash. As expected products in Engine are much more expensive than other parts of a motorcycle. Products under suspension and traction appeared to be in demand than other products line.   
+From this report, the company is doing well in terms of sales but will need to improve sales in the western region, low sales in that area might be due to low demand compared to other regions or high competition which will be advisable to look into.
+
+**If you find the insights in this analysis interesting, please [upvote](https://app.datacamp.com/workspace/w/01550946-5aa0-4f7d-816d-fb2aa486bc41).**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,353 @@
+---
+title: DataCamp Competition - Reporting Sales Data
+author: Adejumo Ridwan Suleiman
+date: '2022-01-27'
+slug: datacamp-competition-reporting-sales-data
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="problem-statement" class="section level2">
+<h2>📖 Problem Statement</h2>
+<p>The accounting department of a company that sells motorcycle parts operates three warehouses in a large metropolitan area. The company want’s their sales data analysed and want to capture sales by payment method. They also want to know the average unit price for each product line.</p>
+</div>
+<div id="objectives" class="section level2">
+<h2>Objectives</h2>
+<ol style="list-style-type: decimal">
+<li>What are the total sales for each payment method?</li>
+<li>What is the average unit price for each product line?</li>
+<li>Create plots to visualize findings for questions 1 and 2.</li>
+<li>Investigate further (e.g., average purchase value by client type, total purchase value by product line, etc.)</li>
+<li>Summarize the findings.</li>
+</ol>
+</div>
+<div id="data-summary" class="section level2">
+<h2>💾 Data Summary</h2>
+<pre class="r"><code>#load libraries
+library(tidyverse)
+library(lubridate)
+
+#load data
+df &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/sales_data.csv&quot;)
+
+head(df)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+##   date       warehouse client_type product_line        quantity unit_price total
+##   &lt;date&gt;     &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;                  &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt;
+## 1 2021-06-01 Central   Retail      Miscellaneous              8       16.8  135.
+## 2 2021-06-01 North     Retail      Breaking system            9       19.3  174.
+## 3 2021-06-01 North     Retail      Suspension &amp; tract~        8       32.9  263.
+## 4 2021-06-01 North     Wholesale   Frame &amp; body              16       37.8  605.
+## 5 2021-06-01 Central   Retail      Engine                     2       60.5  121.
+## 6 2021-06-01 North     Wholesale   Suspension &amp; tract~       40       37.4 1495.
+## # ... with 1 more variable: payment &lt;chr&gt;</code></pre>
+<pre class="r"><code>skimr::skim(df)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-2">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">df</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">1000</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">8</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">4</td>
+</tr>
+<tr class="odd">
+<td align="left">Date</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">numeric</td>
+<td align="left">3</td>
+</tr>
+<tr class="odd">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">warehouse</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">client_type</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">9</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">product_line</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">21</td>
+<td align="right">0</td>
+<td align="right">6</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">payment</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">11</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: Date</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="left">min</th>
+<th align="left">max</th>
+<th align="left">median</th>
+<th align="right">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">date</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">2021-06-01</td>
+<td align="left">2021-08-28</td>
+<td align="left">2021-07-14</td>
+<td align="right">89</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">quantity</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">9.39</td>
+<td align="right">9.66</td>
+<td align="right">1.00</td>
+<td align="right">4.00</td>
+<td align="right">6.50</td>
+<td align="right">10.00</td>
+<td align="right">40.00</td>
+<td align="left">▇▂▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">unit_price</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">30.32</td>
+<td align="right">12.26</td>
+<td align="right">10.03</td>
+<td align="right">21.09</td>
+<td align="right">28.57</td>
+<td align="right">37.92</td>
+<td align="right">66.62</td>
+<td align="left">▆▇▅▂▁</td>
+</tr>
+<tr class="odd">
+<td align="left">total</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">289.11</td>
+<td align="right">345.23</td>
+<td align="right">10.35</td>
+<td align="right">93.69</td>
+<td align="right">178.36</td>
+<td align="right">321.69</td>
+<td align="right">2546.33</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+</tbody>
+</table>
+<p>The sales data has the following 1000 items and 8 fields:<br />
+- “date” - The date, from June to August 2021.<br />
+- “warehouse” - The company operates three warehouses: North, Central, and West.<br />
+- “client_type” - There are two types of customers: Retail and Wholesale.<br />
+- “product_line” - Type of products purchased.<br />
+- “quantity” - How many items were purchased.<br />
+- “unit_price” - Price per item sold.<br />
+- “total” - Total sale = quantity * unit_price.<br />
+- “payment” - How the client paid: Cash, Credit card, Transfer.<br />
+There are no missing values in the data.</p>
+</div>
+<div id="exploratory-data-analysis" class="section level2">
+<h2>Exploratory Data Analysis</h2>
+<div id="total-sale-for-each-payment-method" class="section level3">
+<h3>Total sale for each payment method</h3>
+<pre class="r"><code>df %&gt;% 
+  group_by(payment) %&gt;% 
+  summarize(total = sum(total)) </code></pre>
+<pre><code>## # A tibble: 3 x 2
+##   payment       total
+##   &lt;chr&gt;         &lt;dbl&gt;
+## 1 Cash         19199.
+## 2 Credit card 110272.
+## 3 Transfer    159642.</code></pre>
+<p>Let’s visualize the results and see the percentage of total sales in each payment method.</p>
+<pre class="r"><code>df %&gt;% 
+  group_by(payment) %&gt;% 
+  summarize(total = sum(total)) %&gt;% 
+  mutate(perc_sales = (total/sum(total))*100) %&gt;% 
+  ggplot(aes(x = reorder(payment, perc_sales), y = perc_sales, fill = payment)) +
+  geom_col() +
+  geom_text(aes(label = scales::comma(perc_sales))) +
+  xlab(&quot;Payment Method&quot;) +
+  ylab(&quot;Percentage of total Sales&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+55% of total sales were paid through bank transfer, 38% through credit card, just 7% were paid through cash. Most customers prefer to use bank transfer and credit cards for payment.</p>
+</div>
+<div id="average-unit-price-for-each-product-line" class="section level3">
+<h3>Average unit price for each product line</h3>
+<p>The average unit price per product line is the calculated by dividing the total number of sales for each product line by the total number of units sold.</p>
+<pre class="r"><code>df %&gt;% 
+  group_by(product_line) %&gt;% 
+  summarize(avg_unit_price = mean(unit_price)) %&gt;% 
+  arrange(desc(avg_unit_price)) %&gt;% 
+  ggplot(aes(x = reorder(product_line, avg_unit_price), 
+             y = avg_unit_price, fill = product_line)) +
+  geom_col() +
+  geom_text(aes(label = scales::comma(avg_unit_price))) +
+  coord_flip() +
+  xlab(&quot;Product Line&quot;) +
+  ylab(&quot;Average Unit Price&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+Products under the Engine product line are more expensive with an average unit price of over 60 dollars, Breaking system having the least expensive products with an average unit price of 17.7 dollars.</p>
+</div>
+<div id="average-purchase-value-by-client-type" class="section level3">
+<h3>Average purchase value by client type</h3>
+<p>The average purchase value(APV) is giving by the total number of sales divided by the number of orders in each client type.</p>
+<pre class="r"><code>df %&gt;% 
+  group_by(client_type) %&gt;% 
+  summarize(avg_pur_value = sum(total)/sum(quantity)) </code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   client_type avg_pur_value
+##   &lt;chr&gt;               &lt;dbl&gt;
+## 1 Retail               30.7
+## 2 Wholesale            30.8</code></pre>
+<p>Clients who purchase on wholesale have the highest average purchase value of 30.82 dollars while clients in retail have a purchase value of 30.72 dollars. Seems both clients have similar demands but the demand of clients on wholesale is more high.</p>
+</div>
+<div id="total-purchase-value-by-product-line." class="section level3">
+<h3>Total purchase value by product line.</h3>
+<p>This is the total sales made in each product line</p>
+<pre class="r"><code>df %&gt;% 
+  group_by(product_line) %&gt;% 
+  summarize(total_sales = sum(total)) %&gt;% 
+  mutate(perc_sales = total_sales/sum(total_sales)*100) %&gt;% 
+  ggplot(aes(x = reorder(product_line, perc_sales), 
+             y = perc_sales, fill = product_line)) +
+  geom_col() + 
+  coord_flip() +
+  geom_text(aes(label = scales::comma(perc_sales))) +
+  xlab(&quot;Product Line&quot;) +
+  ylab(&quot;Percentage of total sales&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+Most sales were made from products in Suspension and traction which constitute 25.25% of total sales. Products in Engine product line and Miscellaneous have the lowest amount of sales with 13.12% and 9.4% respectively.</p>
+</div>
+<div id="month-with-the-highest-total-sales" class="section level3">
+<h3>Month with the highest total sales</h3>
+<pre class="r"><code>df %&gt;%
+  group_by(month = month(date, label = T)) %&gt;% 
+  summarize(total = sum(total)) %&gt;% 
+  arrange(desc(total))</code></pre>
+<pre><code>## # A tibble: 3 x 2
+##   month   total
+##   &lt;ord&gt;   &lt;dbl&gt;
+## 1 Aug   100245.
+## 2 Jun    95320.
+## 3 Jul    93548.</code></pre>
+<p>Though sales dropped in the month of July, it sky rocketed in the month of August.</p>
+</div>
+<div id="warehouse-with-the-highest-total-sales" class="section level3">
+<h3>Warehouse with the highest total sales</h3>
+<pre class="r"><code>df %&gt;% 
+  group_by(warehouse) %&gt;% 
+  summarize(total_sales = sum(total)) %&gt;% 
+  mutate(perc_sales = (total_sales/sum(total_sales))*100) %&gt;% 
+  ggplot(aes(x = reorder(warehouse, perc_sales),
+             y = perc_sales, fill = warehouse)) +
+  geom_col() +
+  xlab(&quot;Warehouse&quot;) +
+  ylab(&quot;Percentage of total sales&quot;) +
+  geom_text(aes(label = scales::comma(perc_sales)))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+Warehouse in Central of the metropolitan area have more sales than warehouses in other regions with 49 % of total sales made, which is almost close to half of the total sales. The warehouse in the western region have the lowest amount of sales with 16% of total sales.</p>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>The company compared to previous months have made a lot of sales with majority from the warehouse in the central region, this is a good sign indicating increase in sales. Most clients prefer to pay through bank transfer or credit card and this is due to the fact that most of them are wholesale and retail and they purchase in bulk which involves huge amount of money, it is more secure than carrying cash. As expected products in Engine are much more expensive than other parts of a motorcycle. Products under suspension and traction appeared to be in demand than other products line.<br />
+From this report, the company is doing well in terms of sales but will need to improve sales in the western region, low sales in that area might be due to low demand compared to other regions or high competition which will be advisable to look into.</p>
+<p><strong>If you find the insights in this analysis interesting, please <a href="https://app.datacamp.com/workspace/w/01550946-5aa0-4f7d-816d-fb2aa486bc41">upvote</a>.</strong></p>
+</div>

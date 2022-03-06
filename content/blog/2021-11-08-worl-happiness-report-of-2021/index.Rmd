@@ -1,0 +1,108 @@
+---
+title: A Structural Model of the World Happiness Report
+author: 'Adejumo Ridwan Suleiman'
+date: '2021-11-08'
+slug: worl-happiness-report-of-2021
+categories: []
+tags: []
+---
+
+<center>
+*“If you can’t explain it simply, you don’t understand it well enough.”*  
+*— Albert Einstein*
+</center>
+
+<style> body {text-align: justify} </style>
+
+# Introduction
+Structural equation modelling is a statistical technique used mostly in behavioral and cognitive sciences to see how some selected factors affect a latent variable. A latent variable is a variable that can't be observed but can be inferred from other variables. This post is going to use confirmatory factor analysis (CFA); a sub term in SEM to see if happiness can be predicted from the world happiness index variables.
+
+# The World Happiness Report data
+The data for the world happiness report was sourced from kaggle and can be downloaded [here](https://www.kaggle.com/mathurinache/world-happiness-report-20152021?select=2021.csv). The data consists of 150 countries and variables: happiness score, GDP, social support, life expectancy, freedom, generosity and corruption. All variables are continuous variables and there is absence of missing values in the dataset. 
+
+# Load the dataset
+```{r, warning=F, message=F, results=T}
+#load the libraries 
+library(tidyverse)
+whi_data <- readr::read_csv("C:/Users/Adejumo/Downloads/2021.csv") %>% 
+  #select required columns
+  select(c(1,3,7:12))
+
+#change variable names
+whi_data <- whi_data %>% 
+  mutate(score = `Ladder score`,
+         GDP = `Logged GDP per capita`,
+         support = `Social support`,
+         Life_exp = `Healthy life expectancy`,
+         freedom = `Freedom to make life choices`,
+         corruption = `Perceptions of corruption`,
+         .keep = "unused")
+
+#top 6 rows
+head(whi_data)
+```
+# Measurement Model 
+The measurement model enables us to know factors that will give us a good fit. This allows us to know the factors that have a large amount of effect on happiness before fitting the SEM. In the measurement model, a rule of thumb is that factors with factor loading less than 0.5 have a weak effect on the variable and hence they should be dropped. To perform a structural equation modelling in R we need the "lavaan" package and the "semptools" package for plotting the Directed Acyclic Graph (DAG) showing the  relationship paths.
+```{r, warning=F, message=F,results=T}
+#load libraries
+library(lavaan)
+library(semPlot)
+
+#constructing the measurement model
+mea_model <- "Happiness = ~score + Generosity + GDP + support + Life_exp + freedom + corruption"
+
+#fitting the measurement model
+mea_fit <- sem(mea_model,
+               data = whi_data)
+
+#summary statistics of the measurement model
+summary(mea_fit,
+        fit.measures = TRUE)
+
+
+```
+From the summary statistics above, we are able to see that the model is close almost a good fit from the model fit indices: CFI = 0.897, TLI = 0.846, RMSEA = 0.178 and SRMEA = 0.087. A model is said to be a good fit if CFI and TLI are greater than 0.95 and SRMR and RMSEA are in the range 0.05-1.00. The DAG diagram below will let us know which factors to remove to ensure a good model fit.
+```{r,warning=F,message=F,results=T}
+semPaths(mea_fit, "par", 
+         edge.label.cex = 1.2, 
+         fade = FALSE,
+         edge.label.postition = 1,
+         edge.label.font = 70,
+         edge.label.by = TRUE, 
+         layout = "tree",
+         sizeMan = 10)
+```
+From the diagram above, support and freedom have a factor loading less than 0.5 signifying that they have less impact on happiness. To fit the structural equation model, the variables support and freedom will have to be removed. We leave the variables corruption and generosity due to their negative relationship.  
+
+# The Structural Equation Model
+Now that we know the variables that will contribute more effect to our model, we can now fit the SEM model.
+```{r, warning=F, message=F, results= T}
+#constructing the measurement model
+sem_model <- "Happiness = ~score + Generosity + GDP + Life_exp + corruption"
+
+#fitting the measurement model
+sem_fit <- sem(sem_model,
+               data = whi_data)
+
+#summary statistics of the measurement model
+summary(sem_fit,
+        fit.measures = TRUE)
+```
+Though not all model fit parameters were met, but we can not ignore the fact that the CFI = 0.953 and the SRMR = 0.072.
+The final structural equation DAG diagram is given below:
+```{r, warning=F, message=F, results= T}
+semPaths(sem_fit, "par", 
+         edge.label.cex = 1.2, 
+         fade = FALSE,
+         edge.label.postition = 1,
+         edge.label.font = 70,
+         edge.label.by = TRUE, 
+         layout = "tree",
+         sizeMan = 10)
+```
+
+# Conclusion
+From the analysis above, we can now see that countries with high life expectancy, GDP and happiness score are more likely to be happy. Although I did not expect generosity to be negatively related with happiness but we are in a era where people take advantage of generous people and trust are broken, this might be a possible explanation for such relationship between generosity and happiness. Also as expected a country that is corrupt will not have happy individuals.  
+
+Thanks for your time as you read this analysis, though there is more to SEM than just this few paragraphs I have written in this post.
+

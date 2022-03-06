@@ -1,0 +1,96 @@
+---
+title: DataCamp Competition - Was a website redesign successful
+author: Adejumo Ridwan Suleiman
+date: '2022-01-25'
+slug: datacamp-competition-was-a-website-redesign-successful
+toc : true
+categories: []
+tags: []
+---
+
+<center>
+*“🧑If first you don't succeed, try two or more times so that your failure is statistically significant”*  
+</center>
+
+## 📖 Problem Statement
+An early-stage start up in Germany has been working on a website redesign of their landing page. The team believes a new design will increase the number of people who click through and join the site.They have been testing the changes for a few weeks, and now they want to measure the impact of the change and need to determine if the increase can be due to random chance or if it is statistically significant.
+
+## Aims and Objectives
+1. Analyze the conversion rates for each of the four groups: the new/old design of the landing page and the new/old pictures.
+2. Can the increases observed be explained by randomness?
+3. Which version of the website should they use?
+
+## 💾 Data Summary
+
+```{r, warning=F, message=F, results=T}
+#load libraries
+library(tidyverse)
+
+#load data
+df <- read_csv("C:/Users/Adejumo/Downloads/redesign.csv")
+
+head(df)
+```
+
+```{r, warning=F, message=F, results=T}
+skimr::skim(df)
+```
+- `treatment` - "yes" if the user saw the new version of the landing page, no otherwise.
+- `new_images` - "yes" if the page used a new set of images, no otherwise.
+- `converted` - 1 if the user joined the site, 0 otherwise.
+1. Their are 40484 users who have visited the site and we have no missing values in the dataset. 
+2. `Group A` users with "yes" in both columns: the new version with the new set of images.
+3. `Group B` users with yes" in column one and "no" in column two: the new version of website with old set of images
+4. `Group C` users with "no" in column one and "yes" in column two: old version of website with new set of images
+5. `Group D` the control group is those users with "no" in both columns: the old version with the old set of images.  
+
+### Null Hypothesis
+Increase in users is due to chance and their is no statistical difference between the four groups.
+
+### Alternative Hypothesis
+Their is statistical significance difference between the four groups and increse in users was not as a result of chance.
+
+## A/B Test
+The A/B testing or bucket testing is a statistical methodology for comparing between two versions of a web page or mobile app to see which one drives more users. The version with the highest conversion rate wins. This will be used to answer our questions and see which of the landing page design and images is better.
+
+## Analysis
+
+### Absolute proportion
+```{r, warning=F, message=F, results=T}
+#unite the treatment and images column to form a new column  which contains our groups
+df_new <- df %>% 
+  unite("group", treatment:new_images, sep = "-", remove = T)
+
+# create  the table with the absolute proportion
+prop <- table(df_new)
+prop_abs <- addmargins(prop)
+prop_abs
+
+```
+
+### Conversion Rate(relative proportion)
+```{r, warning=F, message=F, results=T}
+# create  the table with the relative proportion
+prop_rel <- prop.table(prop, 1)
+prop_rel <- round(addmargins(prop_rel, 2), 3)
+prop_rel
+
+```
+- `Group A` (new landing page design and new images) has a conversion rate of 11.4%
+- `Group B` (new landing page design and old images) has a conversion rate of 12%
+- `Group C` (old landing page design and new images) has a conversion rate of 11.3%
+- `Group D` (old landing page design and old images) has a conversion rate of 10.7%  
+Clearly the highest conversion rate is Group B i.e new landing page design while retaining old images and the lowest conversion rate is Group D i.e old landing page design with old images.
+
+### Pearson's Chi squared test of proportion
+```{r, warning=F, message=F, results=T}
+#Pearson chi squared test for proportion
+prop.test(prop)
+
+```
+The Pearson's chi squared test for proportion shows us that that the p-value is less than 0.05 which implies that  the 4 groups are significantly different from each other. The null hypothesis is rejected indicating that the increase in users is not by chance.
+
+## Recommendations
+The website design was successful, the top conversion rates came from the new landing page designs, but the company should retain old images in the new design. This is better and will attract more people to join the site.
+
+**If you find this analysis interesting, please [upvote](https://app.datacamp.com/workspace/w/631f6d8e-f42f-40e6-9869-33132dbc67dd)**

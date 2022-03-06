@@ -1,0 +1,168 @@
+---
+title: Analysing Whatsapp Group Chat Data
+author: Adejumo Ridwan Suleiman
+date: '2022-01-16'
+slug: analysing-whatsapp-group-chat-data
+categories: []
+tags: []
+---
+
+<center>
+*“Destroy your money, you can earn more. Destroy your data, your existence is erased.”*  
+*— Kurt Seapoint”*  
+</center>
+
+In this post I am going to analyse my departmental Whatsapp chat group "Statistics Class of 2019". Thanks to a special package called `rwhatsapp`, this allows us to  work with Whatsapp text data in R. We are also going to perform some text mining using the `tidytext` package.
+```{r, warning = F, message = F, results = T}
+#load libraries
+library(rwhatsapp)
+library(tidyverse)
+
+#load data
+chat <- rwa_read("C:/Users/Adejumo/Downloads/whatsapp.txt") %>% 
+  #remove messages without author
+  filter(!is.na(author))
+
+chat
+
+```
+I lost some messages, the messages are actually more that this. We have just 403 messages here. Let's see number of messages sent on daily basis.
+```{r, warning = F, message = F, results = T}
+chat %>%
+  mutate(day = lubridate::date(time)) %>%
+  count(day)  %>% 
+  ggplot(aes(x = day, y = n)) +
+  geom_bar(stat = "identity") +
+  ylab("") + xlab("") +
+  ggtitle("Messages per day")
+```
+Recently the group haven't been active as before. The number of messages sent daily has dropped. As of December, the maximum number of messages sent hasn't been more than 20 messages per day. Seems every body is busy with life (lol!).
+Let's see the active members.
+```{r, warning = F, message = F, results = T}
+chat %>%
+  mutate(day = lubridate::date(time)) %>%
+  count(author) %>%
+  arrange(desc(n)) %>% 
+  head() %>% 
+  ggplot(aes(x = reorder(author, n), y = n, fill = author)) +
+  geom_bar(stat = "identity") +
+  ylab("") + xlab("") +
+  coord_flip() +
+  ggtitle("Number of messages")
+
+```
+More than 90 messages has been sent by the unknown number. Jagaban is the group admin, as expected of him, he is regularly active. Let's get to the fun part, lets's see the most often used emojis in the group.
+```{r, warning = F, message = F, results = T}
+library("ggimage")
+emoji_data <- rwhatsapp::emojis %>% # data built into package
+  mutate(hex_runes1 = gsub("\\s.*", "", hex_runes)) %>% # ignore combined emojis
+  mutate(emoji_url = paste0("https://abs.twimg.com/emoji/v2/72x72/", 
+                            tolower(hex_runes1), ".png"))
+
+chat %>%
+  unnest(emoji) %>%
+  count(author, emoji, sort = TRUE) %>%
+  arrange(desc(n)) %>% 
+  head(10) %>% 
+  group_by(author) %>% 
+  left_join(emoji_data, by = "emoji") %>% 
+  ggplot(aes(x = reorder(emoji, n), y = n, fill = author)) +
+  geom_col(show.legend = FALSE) +
+  ylab("") +
+  xlab("") +
+  coord_flip() +
+  geom_image(aes(y = n + 20, image = emoji_url)) +
+  facet_wrap(~author, ncol = 2, scales = "free_y") +
+  ggtitle("Most often used emojis") +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+```
+Looks like the most popular emoji is the `face with tears of joy`. The group admin `Jagaban` is also the member that sends the most emoji. Let's compare favourite words.
+```{r, warning = F, message = F, results = T}
+library(tidytext)
+
+chat %>%
+  unnest_tokens(input = text,
+                output = word) %>%
+  count(author, word, sort = TRUE) %>% 
+  head(80) %>% 
+  group_by(author) %>% 
+  top_n(n = 6, n) %>% 
+  ggplot(aes(x = reorder_within(word, n, author), y = n, fill = author)) +
+  geom_col(show.legend = FALSE) +
+  ylab("") +
+  xlab("") +
+  coord_flip() +
+  facet_wrap(~author, ncol = 2, scales = "free_y") +
+  scale_x_reordered() +
+  ggtitle("Most often used words")
+```
+First of all we have to do is remove the words "media" and "omitted", these are placeholders Whatsapp puts into the log file instead of picture or video. There are other words that don't look particularly useful either, these words are called stopwords: words that don't carry substantial meaning e.g and, or and so on. Their are some "pidgin" words also that needs to be removed such as dey, na and so on.
+```{r, warning = F, message = F, results = T}
+library("stopwords")
+
+to_remove <- c(stopwords(language = "en"),
+               "media","omitted","na","2","s","u","ahni","irc","dey","3","au","mak","u","don","naa","4","6","una","b","oo","2021","go","sir")
+
+chat %>%
+  unnest_tokens(input = text,
+                output = word) %>%
+  filter(!word %in% to_remove) %>%
+  count(author, word, sort = TRUE) %>% 
+  head(90) %>% 
+  group_by(author) %>%
+  top_n(n = 6, n) %>%  
+  ggplot(aes(x = reorder_within(word, n, author), y = n, fill = author)) +
+  geom_col(show.legend = FALSE) +
+  ylab("") +
+  xlab("") +
+  coord_flip() +
+  facet_wrap(~author, ncol = 2, scales = "free_y") +
+  scale_x_reordered() +
+  ggtitle("Most often used words")
+```
+The unkown number sends more of links which are mostly job links from the link name `ngojobsite.com` in the group chat. Another text mining technique we can do is to calculate lexical diversity. This allows us to see how many unique words are used by an author.
+```{r, warning = F, message = F, results = T}
+chat %>%
+  unnest_tokens(input = text,
+                output = word) %>%
+  filter(!word %in% to_remove) %>%
+  count(author, word, sort = TRUE) %>% 
+  group_by(author) %>%
+  summarise(lex_diversity = n_distinct(word)) %>%  
+  arrange(desc(lex_diversity)) %>% 
+  head(10) %>% 
+  ggplot(aes(x = reorder(author, lex_diversity),
+                          y = lex_diversity,
+                          fill = author)) +
+  geom_col(show.legend = FALSE) +
+  scale_y_continuous(expand = (mult = c(0, 0, 0, 500))) +
+  geom_text(aes(label = scales::comma(lex_diversity)), hjust = -0.1) +
+  ylab("unique words") +
+  xlab("") +
+  ggtitle("Lexical Diversity") +
+  coord_flip()
+```
+From previous plots we know that the unknown number mostly shares website link. Let's see what are the unique words used by Limitless who is the second on the list.
+```{r, warning = F, message = F, results = T}
+o_words <- chat %>%
+  unnest_tokens(input = text,
+                output = word) %>%
+  filter(author != "Limitless") %>% 
+  count(word, sort = TRUE) 
+
+chat %>%
+  unnest_tokens(input = text,
+                output = word) %>%
+  filter(author == "Limitless") %>% 
+  count(word, sort = TRUE) %>% 
+  filter(!word %in% o_words$word) %>% # only select words nobody else uses
+  top_n(n = 6, n) %>%
+  ggplot(aes(x = reorder(word, n), y = n, fill = word)) +
+  geom_col(show.legend = FALSE) +
+  ylab("") + xlab("") +
+  coord_flip() +
+  ggtitle("Unique words of Limitless")
+```
+Seeing from the above, these are words that Limitless does not use often.
+This is all for now, there are various text mining methods that can be done on Whatsapp data, these are just few of them.

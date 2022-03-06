@@ -1,0 +1,10 @@
+---
+title: 'Web App For Exploratory Data Analysis (WAFEDA): Built on RShiny'
+author: Adejumo Ridwan Suleiman
+date: '2022-03-05'
+slug: []
+categories: []
+tags: []
+---
+
+[WAFEDA](https://ridwan-adejumo-suleiman.shinyapps.io/WAFEDA/?_ga=2.58495277.663747270.1646329263-556426440.1629003048), sounds weird right. I couldn't come up with a better name. This web app is meant to perform basic exploratory data analysis on browsers courtesy of Rshiny. The app accepts only `csv` and `tsv` files and is able to plot various visualizations depending on the type of variable selected. The app also gives summary statistics and correlations between variables in a given dataset. Source code is available on my [Github](https://github.com/adejumoridwan/WAFEDA/blob/main/app.R).

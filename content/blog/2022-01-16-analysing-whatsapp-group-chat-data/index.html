@@ -1,0 +1,173 @@
+---
+title: Analysing Whatsapp Group Chat Data
+author: Adejumo Ridwan Suleiman
+date: '2022-01-16'
+slug: analysing-whatsapp-group-chat-data
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<center>
+<em>“Destroy your money, you can earn more. Destroy your data, your existence is erased.”</em><br />
+<em>— Kurt Seapoint”</em>
+</center>
+<p>In this post I am going to analyse my departmental Whatsapp chat group “Statistics Class of 2019”. Thanks to a special package called <code>rwhatsapp</code>, this allows us to work with Whatsapp text data in R. We are also going to perform some text mining using the <code>tidytext</code> package.</p>
+<pre class="r"><code>#load libraries
+library(rwhatsapp)
+library(tidyverse)
+
+#load data
+chat &lt;- rwa_read(&quot;C:/Users/Adejumo/Downloads/whatsapp.txt&quot;) %&gt;% 
+  #remove messages without author
+  filter(!is.na(author))
+
+chat</code></pre>
+<pre><code>## # A tibble: 403 x 6
+##    time                author            text        source     emoji emoji_name
+##    &lt;dttm&gt;              &lt;fct&gt;             &lt;chr&gt;       &lt;chr&gt;      &lt;lis&gt; &lt;list&gt;    
+##  1 2021-10-17 14:13:02 +234 703 857 6887 &quot;\U0001f60~ C:/Users/~ &lt;chr~ &lt;chr [1]&gt; 
+##  2 2021-10-17 14:13:02 +234 703 857 6887 &quot;Don&#39;t men~ C:/Users/~ &lt;chr~ &lt;chr [1]&gt; 
+##  3 2021-10-17 14:30:02 Don Sepa          &quot;Congratul~ C:/Users/~ &lt;NUL~ &lt;NULL&gt;    
+##  4 2021-10-17 15:40:02 Jagaban           &quot;&lt;Media om~ C:/Users/~ &lt;NUL~ &lt;NULL&gt;    
+##  5 2021-10-17 15:42:02 +234 703 857 6887 &quot;&lt;U+2764&gt;&lt;U+FE0F&gt;&quot;         C:/Users/~ &lt;chr~ &lt;chr [1]&gt; 
+##  6 2021-10-17 15:46:02 +234 816 195 5210 &quot;Congratul~ C:/Users/~ &lt;NUL~ &lt;NULL&gt;    
+##  7 2021-10-17 15:51:02 Sobah             &quot;Congratul~ C:/Users/~ &lt;NUL~ &lt;NULL&gt;    
+##  8 2021-10-17 15:51:02 Zahra             &quot;Congrats ~ C:/Users/~ &lt;NUL~ &lt;NULL&gt;    
+##  9 2021-10-17 15:52:02 +234 706 590 8705 &quot;&lt;Media om~ C:/Users/~ &lt;NUL~ &lt;NULL&gt;    
+## 10 2021-10-17 15:52:02 +234 813 737 2046 &quot;This mess~ C:/Users/~ &lt;NUL~ &lt;NULL&gt;    
+## # ... with 393 more rows</code></pre>
+<p>I lost some messages, the messages are actually more that this. We have just 403 messages here. Let’s see number of messages sent on daily basis.</p>
+<pre class="r"><code>chat %&gt;%
+  mutate(day = lubridate::date(time)) %&gt;%
+  count(day)  %&gt;% 
+  ggplot(aes(x = day, y = n)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  ylab(&quot;&quot;) + xlab(&quot;&quot;) +
+  ggtitle(&quot;Messages per day&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+Recently the group haven’t been active as before. The number of messages sent daily has dropped. As of December, the maximum number of messages sent hasn’t been more than 20 messages per day. Seems every body is busy with life (lol!).
+Let’s see the active members.</p>
+<pre class="r"><code>chat %&gt;%
+  mutate(day = lubridate::date(time)) %&gt;%
+  count(author) %&gt;%
+  arrange(desc(n)) %&gt;% 
+  head() %&gt;% 
+  ggplot(aes(x = reorder(author, n), y = n, fill = author)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  ylab(&quot;&quot;) + xlab(&quot;&quot;) +
+  coord_flip() +
+  ggtitle(&quot;Number of messages&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+More than 90 messages has been sent by the unknown number. Jagaban is the group admin, as expected of him, he is regularly active. Let’s get to the fun part, lets’s see the most often used emojis in the group.</p>
+<pre class="r"><code>library(&quot;ggimage&quot;)
+emoji_data &lt;- rwhatsapp::emojis %&gt;% # data built into package
+  mutate(hex_runes1 = gsub(&quot;\\s.*&quot;, &quot;&quot;, hex_runes)) %&gt;% # ignore combined emojis
+  mutate(emoji_url = paste0(&quot;https://abs.twimg.com/emoji/v2/72x72/&quot;, 
+                            tolower(hex_runes1), &quot;.png&quot;))
+
+chat %&gt;%
+  unnest(emoji) %&gt;%
+  count(author, emoji, sort = TRUE) %&gt;%
+  arrange(desc(n)) %&gt;% 
+  head(10) %&gt;% 
+  group_by(author) %&gt;% 
+  left_join(emoji_data, by = &quot;emoji&quot;) %&gt;% 
+  ggplot(aes(x = reorder(emoji, n), y = n, fill = author)) +
+  geom_col(show.legend = FALSE) +
+  ylab(&quot;&quot;) +
+  xlab(&quot;&quot;) +
+  coord_flip() +
+  geom_image(aes(y = n + 20, image = emoji_url)) +
+  facet_wrap(~author, ncol = 2, scales = &quot;free_y&quot;) +
+  ggtitle(&quot;Most often used emojis&quot;) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+Looks like the most popular emoji is the <code>face with tears of joy</code>. The group admin <code>Jagaban</code> is also the member that sends the most emoji. Let’s compare favourite words.</p>
+<pre class="r"><code>library(tidytext)
+
+chat %&gt;%
+  unnest_tokens(input = text,
+                output = word) %&gt;%
+  count(author, word, sort = TRUE) %&gt;% 
+  head(80) %&gt;% 
+  group_by(author) %&gt;% 
+  top_n(n = 6, n) %&gt;% 
+  ggplot(aes(x = reorder_within(word, n, author), y = n, fill = author)) +
+  geom_col(show.legend = FALSE) +
+  ylab(&quot;&quot;) +
+  xlab(&quot;&quot;) +
+  coord_flip() +
+  facet_wrap(~author, ncol = 2, scales = &quot;free_y&quot;) +
+  scale_x_reordered() +
+  ggtitle(&quot;Most often used words&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+First of all we have to do is remove the words “media” and “omitted”, these are placeholders Whatsapp puts into the log file instead of picture or video. There are other words that don’t look particularly useful either, these words are called stopwords: words that don’t carry substantial meaning e.g and, or and so on. Their are some “pidgin” words also that needs to be removed such as dey, na and so on.</p>
+<pre class="r"><code>library(&quot;stopwords&quot;)
+
+to_remove &lt;- c(stopwords(language = &quot;en&quot;),
+               &quot;media&quot;,&quot;omitted&quot;,&quot;na&quot;,&quot;2&quot;,&quot;s&quot;,&quot;u&quot;,&quot;ahni&quot;,&quot;irc&quot;,&quot;dey&quot;,&quot;3&quot;,&quot;au&quot;,&quot;mak&quot;,&quot;u&quot;,&quot;don&quot;,&quot;naa&quot;,&quot;4&quot;,&quot;6&quot;,&quot;una&quot;,&quot;b&quot;,&quot;oo&quot;,&quot;2021&quot;,&quot;go&quot;,&quot;sir&quot;)
+
+chat %&gt;%
+  unnest_tokens(input = text,
+                output = word) %&gt;%
+  filter(!word %in% to_remove) %&gt;%
+  count(author, word, sort = TRUE) %&gt;% 
+  head(90) %&gt;% 
+  group_by(author) %&gt;%
+  top_n(n = 6, n) %&gt;%  
+  ggplot(aes(x = reorder_within(word, n, author), y = n, fill = author)) +
+  geom_col(show.legend = FALSE) +
+  ylab(&quot;&quot;) +
+  xlab(&quot;&quot;) +
+  coord_flip() +
+  facet_wrap(~author, ncol = 2, scales = &quot;free_y&quot;) +
+  scale_x_reordered() +
+  ggtitle(&quot;Most often used words&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+The unkown number sends more of links which are mostly job links from the link name <code>ngojobsite.com</code> in the group chat. Another text mining technique we can do is to calculate lexical diversity. This allows us to see how many unique words are used by an author.</p>
+<pre class="r"><code>chat %&gt;%
+  unnest_tokens(input = text,
+                output = word) %&gt;%
+  filter(!word %in% to_remove) %&gt;%
+  count(author, word, sort = TRUE) %&gt;% 
+  group_by(author) %&gt;%
+  summarise(lex_diversity = n_distinct(word)) %&gt;%  
+  arrange(desc(lex_diversity)) %&gt;% 
+  head(10) %&gt;% 
+  ggplot(aes(x = reorder(author, lex_diversity),
+                          y = lex_diversity,
+                          fill = author)) +
+  geom_col(show.legend = FALSE) +
+  scale_y_continuous(expand = (mult = c(0, 0, 0, 500))) +
+  geom_text(aes(label = scales::comma(lex_diversity)), hjust = -0.1) +
+  ylab(&quot;unique words&quot;) +
+  xlab(&quot;&quot;) +
+  ggtitle(&quot;Lexical Diversity&quot;) +
+  coord_flip()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+From previous plots we know that the unknown number mostly shares website link. Let’s see what are the unique words used by Limitless who is the second on the list.</p>
+<pre class="r"><code>o_words &lt;- chat %&gt;%
+  unnest_tokens(input = text,
+                output = word) %&gt;%
+  filter(author != &quot;Limitless&quot;) %&gt;% 
+  count(word, sort = TRUE) 
+
+chat %&gt;%
+  unnest_tokens(input = text,
+                output = word) %&gt;%
+  filter(author == &quot;Limitless&quot;) %&gt;% 
+  count(word, sort = TRUE) %&gt;% 
+  filter(!word %in% o_words$word) %&gt;% # only select words nobody else uses
+  top_n(n = 6, n) %&gt;%
+  ggplot(aes(x = reorder(word, n), y = n, fill = word)) +
+  geom_col(show.legend = FALSE) +
+  ylab(&quot;&quot;) + xlab(&quot;&quot;) +
+  coord_flip() +
+  ggtitle(&quot;Unique words of Limitless&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+Seeing from the above, these are words that Limitless does not use often.
+This is all for now, there are various text mining methods that can be done on Whatsapp data, these are just few of them.</p>
