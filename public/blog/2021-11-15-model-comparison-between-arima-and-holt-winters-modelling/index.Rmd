@@ -1,0 +1,178 @@
+---
+title: ARIMA or Holt-Winters, Let's Find Out!
+author: 'Adejumo Ridwan Suleiman'
+date: '2021-11-15'
+slug: model-comparison-between-arima-and-holt-winters-modelling
+categories: []
+tags: []
+---
+
+<center>
+*“Hiding within those mounds of data is the knowledge that could change the life of a patient, or change the world.”*    
+*— Atul Butte*    
+</center>
+
+<style> body {text-align: justify} </style>
+
+# Introduction
+In this blog post, we are going to develop a time series ARIMA and Holt Winters model and compare model performance. The data to be used can be gotten [here](https://www.kaggle.com/sumanthvrao/daily-climate-time-series-data), the data is a weather forecasting for Indian climate from 1st January 2013 to 24th April 2017 in the city of Delhi, India. The 4 variables in the data are mean temperature, humidity, wind speed and mean pressure. But for the sake of this analysis we are interested only in the mean temperature. The data is divided into training and testing data which we would use to judge model performance and comparison.
+
+
+# Load dataset
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+
+#load libraries 
+library(fma)
+library(tidyverse)
+library(seasonal)
+
+#load train and test data
+train <- read_csv("C:/Users/Adejumo/Downloads/DailyDelhiClimateTrain.csv")
+
+test <- read_csv("C:/Users/Adejumo/Downloads/DailyDelhiClimateTest.csv")
+
+```
+The training data ranges from 1st January 2013 to 1st January 2017 while the testing data ranges from 1st January 2017 to 24th April 2017.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+head(train)
+head(test)
+```
+# TS Graphics and Decomposition
+
+We need to convert the time series data into time series objects to work with time series functions in R.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+#creating time series object
+train_ts <- ts(train, 
+               frequency = 7,
+               start = c(2013, 1),
+               end = c(2017, 1))
+
+test_ts <- ts(test,
+              frequency = 7,
+              start = c(2017, 1),
+              end = c(2017, 114))
+
+#plot the time series of the lettuce data
+autoplot(train_ts[, "meantemp"]) + 
+  ylab("Mean temperature") +
+  xlab("Year") +
+  ggtitle("Mean Temperature")
+
+```
+The graphs above shows the graph of the training data. Now we decompose the training data to see the trend and seasonality using the STL "Seasonal and Trend decomposition using Loess" decomposition method, the advantage of this method is that it has the ability to handle any type of seasonality over other methods.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+#stl decompostion
+fit <- stl(train_ts[, "meantemp"], 
+           s.window = 5,
+           robust = TRUE)
+
+autoplot(fit) +
+  ggtitle("STL decompostion of meantemp")
+```
+From the above plot we can see that the data is not stationary. 
+
+# ARIMA model
+The ARIMA modelling is going to be generated using the [Hyndman-Khandakar](https://www.researchgate.net/publication/222105759_Automatic_Time_Series_Forecasting_The_forecast_Package_for_R) algorithm which combines unit root tests, minimisation of the AICs and MLE to obtain an ARIMA model.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+#ARIMA modelling
+fit_arima <- auto.arima(train_ts[, "meantemp"],
+                        stepwise = F,
+                        approximation = F)
+fit_arima
+
+#accuracy of the ARIMA model on train data
+a1 <- accuracy(fit_arima)
+
+a1
+
+```
+The ARIMA(1,1,0) with no lagged forecast errors. From the model summary, we can see that the AIC value is 123.46. The RMSE of the ARIMA model is also given as 1.999. The residual plot given below and the Ljung-Box test with p-value of 0.9357 indicates absence of autocorrelation.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+#check for autocorrelation
+checkresiduals(fit_arima)
+```
+Forecasting the model on the train and test data and also see the accuracy of the model on the test data.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+#forecasting on train sets.
+fit_arima %>% 
+  forecast %>% 
+  autoplot 
+
+#forecasting on the test data
+fit_arima %>%
+  forecast() %>%
+  autoplot() + 
+  autolayer(test_ts[, "meantemp"])
+
+#accuracy of the model on test data
+ARIMA_test <- Arima(test_ts[, "meantemp"],
+                      model = fit_arima)
+a2 <- accuracy(ARIMA_test)
+
+a2
+
+```
+The RMSE of the test data shows that the model is accurate in forecasting new data. But is this better than the Holt-Winters model, let us see in the next section...
+
+# Holt Winters Model
+The Holt Winter multiplicative variation will be used to model the training data because seasonal variations are changing proportional to the level of the series.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+#multiplicative Holt winters model
+fit_holts <- hw(train_ts[, "meantemp"], 
+                 seasonal = "multiplicative",
+                 damped = FALSE)
+
+#check residuals for autocorrelation
+checkresiduals(fit_holts)
+```
+The residual plots above and the Ljung-Box test indicates that there is no autocorrelation. From the summary below, the RMSE is given as 2.039
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+#holt winter's model summary
+summary(fit_holts)
+```
+We forecast the Holt Winters Model on the training and testing data.
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+#forecast on training data
+autoplot(fit_holts)
+
+#forecast on testing data
+fit_holts %>%
+  forecast() %>%
+  autoplot() + 
+  autolayer(test_ts[, "meantemp"])
+
+#accuracy of the holt winters train model
+e1 <- accuracy(fit_holts)
+
+e1
+
+#accuracy of the holt winters test model
+hw_lettuce_test <- hw(test_ts[, "meantemp"],
+                      model = fit_holts)
+e2 <- accuracy(hw_lettuce_test)
+
+e2
+```
+From RMSE values in the summary statistics above, the model also forecast well on the test data.
+
+# Model Comparison
+```{r, warning = FALSE, message = FALSE, results = TRUE}
+model_comp <- data.frame(ARIMA_train = a1[1:7],
+                         ARIMA_test = a2[1:7],
+                         HW_train = e1[1:7],
+                         HW_test = e2[1:7],
+                         row.names = c("ME", "RMSE",
+                                       "MAE", "MPE",
+                                       "MAPE", "MASE",
+                                       "ACF1"))
+
+model_comp
+```
+From the RMSE values above, the ARIMA fits the training data better than the Holt Winters, but the Holt Winters gives a much more accurate forecast on testing data. 
+
+# References  
+1. Hyndman, R. J., & Khandakar, Y. (2008). Automatic time series forecasting: The forecast package for R. Journal of Statistical Software, 27(1), 1–22.
+2. Hyndman, R. J, Athanasopoulos. Forecasting Principles and Practice.
+
+
+

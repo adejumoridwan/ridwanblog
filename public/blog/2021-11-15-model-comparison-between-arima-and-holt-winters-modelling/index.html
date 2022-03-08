@@ -1,0 +1,271 @@
+---
+title: ARIMA or Holt-Winters, Let's Find Out!
+author: 'Adejumo Ridwan Suleiman'
+date: '2021-11-15'
+slug: model-comparison-between-arima-and-holt-winters-modelling
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<center>
+<em>“Hiding within those mounds of data is the knowledge that could change the life of a patient, or change the world.”</em><br />
+<em>— Atul Butte</em>
+</center>
+<style> body {text-align: justify} </style>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In this blog post, we are going to develop a time series ARIMA and Holt Winters model and compare model performance. The data to be used can be gotten <a href="https://www.kaggle.com/sumanthvrao/daily-climate-time-series-data">here</a>, the data is a weather forecasting for Indian climate from 1st January 2013 to 24th April 2017 in the city of Delhi, India. The 4 variables in the data are mean temperature, humidity, wind speed and mean pressure. But for the sake of this analysis we are interested only in the mean temperature. The data is divided into training and testing data which we would use to judge model performance and comparison.</p>
+</div>
+<div id="load-dataset" class="section level1">
+<h1>Load dataset</h1>
+<pre class="r"><code>#load libraries 
+library(fma)
+library(tidyverse)
+library(seasonal)
+
+#load train and test data
+train &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/DailyDelhiClimateTrain.csv&quot;)
+
+test &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/DailyDelhiClimateTest.csv&quot;)</code></pre>
+<p>The training data ranges from 1st January 2013 to 1st January 2017 while the testing data ranges from 1st January 2017 to 24th April 2017.</p>
+<pre class="r"><code>head(train)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   date       meantemp humidity wind_speed meanpressure
+##   &lt;date&gt;        &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;
+## 1 2013-01-01    10        84.5       0           1016.
+## 2 2013-01-02     7.4      92         2.98        1018.
+## 3 2013-01-03     7.17     87         4.63        1019.
+## 4 2013-01-04     8.67     71.3       1.23        1017.
+## 5 2013-01-05     6        86.8       3.7         1016.
+## 6 2013-01-06     7        82.8       1.48        1018</code></pre>
+<pre class="r"><code>head(test)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   date       meantemp humidity wind_speed meanpressure
+##   &lt;date&gt;        &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;
+## 1 2017-01-01     15.9     85.9       2.74          59 
+## 2 2017-01-02     18.5     77.2       2.89        1018.
+## 3 2017-01-03     17.1     81.9       4.02        1018.
+## 4 2017-01-04     18.7     70.0       4.54        1016.
+## 5 2017-01-05     18.4     74.9       3.3         1014.
+## 6 2017-01-06     19.3     79.3       8.68        1012.</code></pre>
+</div>
+<div id="ts-graphics-and-decomposition" class="section level1">
+<h1>TS Graphics and Decomposition</h1>
+<p>We need to convert the time series data into time series objects to work with time series functions in R.</p>
+<pre class="r"><code>#creating time series object
+train_ts &lt;- ts(train, 
+               frequency = 7,
+               start = c(2013, 1),
+               end = c(2017, 1))
+
+test_ts &lt;- ts(test,
+              frequency = 7,
+              start = c(2017, 1),
+              end = c(2017, 114))
+
+#plot the time series of the lettuce data
+autoplot(train_ts[, &quot;meantemp&quot;]) + 
+  ylab(&quot;Mean temperature&quot;) +
+  xlab(&quot;Year&quot;) +
+  ggtitle(&quot;Mean Temperature&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+The graphs above shows the graph of the training data. Now we decompose the training data to see the trend and seasonality using the STL “Seasonal and Trend decomposition using Loess” decomposition method, the advantage of this method is that it has the ability to handle any type of seasonality over other methods.</p>
+<pre class="r"><code>#stl decompostion
+fit &lt;- stl(train_ts[, &quot;meantemp&quot;], 
+           s.window = 5,
+           robust = TRUE)
+
+autoplot(fit) +
+  ggtitle(&quot;STL decompostion of meantemp&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+From the above plot we can see that the data is not stationary.</p>
+</div>
+<div id="arima-model" class="section level1">
+<h1>ARIMA model</h1>
+<p>The ARIMA modelling is going to be generated using the <a href="https://www.researchgate.net/publication/222105759_Automatic_Time_Series_Forecasting_The_forecast_Package_for_R">Hyndman-Khandakar</a> algorithm which combines unit root tests, minimisation of the AICs and MLE to obtain an ARIMA model.</p>
+<pre class="r"><code>#ARIMA modelling
+fit_arima &lt;- auto.arima(train_ts[, &quot;meantemp&quot;],
+                        stepwise = F,
+                        approximation = F)
+fit_arima</code></pre>
+<pre><code>## Series: train_ts[, &quot;meantemp&quot;] 
+## ARIMA(1,1,0) 
+## 
+## Coefficients:
+##           ar1
+##       -0.4473
+## s.e.   0.1684
+## 
+## sigma^2 estimated as 4.293:  log likelihood=-59.73
+## AIC=123.46   AICc=123.94   BIC=126.13</code></pre>
+<pre class="r"><code>#accuracy of the ARIMA model on train data
+a1 &lt;- accuracy(fit_arima)
+
+a1</code></pre>
+<pre><code>##                     ME     RMSE      MAE        MPE     MAPE      MASE
+## Training set 0.2266035 1.999313 1.533964 -0.1518837 13.44902 0.4115334
+##                   ACF1
+## Training set 0.0598476</code></pre>
+<p>The ARIMA(1,1,0) with no lagged forecast errors. From the model summary, we can see that the AIC value is 123.46. The RMSE of the ARIMA model is also given as 1.999. The residual plot given below and the Ljung-Box test with p-value of 0.9357 indicates absence of autocorrelation.</p>
+<pre class="r"><code>#check for autocorrelation
+checkresiduals(fit_arima)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre><code>## 
+##  Ljung-Box test
+## 
+## data:  Residuals from ARIMA(1,1,0)
+## Q* = 1.2926, df = 5, p-value = 0.9357
+## 
+## Model df: 1.   Total lags used: 6</code></pre>
+<p>Forecasting the model on the train and test data and also see the accuracy of the model on the test data.</p>
+<pre class="r"><code>#forecasting on train sets.
+fit_arima %&gt;% 
+  forecast %&gt;% 
+  autoplot </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>#forecasting on the test data
+fit_arima %&gt;%
+  forecast() %&gt;%
+  autoplot() + 
+  autolayer(test_ts[, &quot;meantemp&quot;])</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<pre class="r"><code>#accuracy of the model on test data
+ARIMA_test &lt;- Arima(test_ts[, &quot;meantemp&quot;],
+                      model = fit_arima)
+a2 &lt;- accuracy(ARIMA_test)
+
+a2</code></pre>
+<pre><code>##                     ME     RMSE      MAE       MPE     MAPE      MASE      ACF1
+## Training set 0.2054088 1.754148 1.385013 0.3583744 6.982821 0.4550031 0.2717389</code></pre>
+<p>The RMSE of the test data shows that the model is accurate in forecasting new data. But is this better than the Holt-Winters model, let us see in the next section…</p>
+</div>
+<div id="holt-winters-model" class="section level1">
+<h1>Holt Winters Model</h1>
+<p>The Holt Winter multiplicative variation will be used to model the training data because seasonal variations are changing proportional to the level of the series.</p>
+<pre class="r"><code>#multiplicative Holt winters model
+fit_holts &lt;- hw(train_ts[, &quot;meantemp&quot;], 
+                 seasonal = &quot;multiplicative&quot;,
+                 damped = FALSE)
+
+#check residuals for autocorrelation
+checkresiduals(fit_holts)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre><code>## 
+##  Ljung-Box test
+## 
+## data:  Residuals from Holt-Winters&#39; multiplicative method
+## Q* = 8.1189, df = 3, p-value = 0.04362
+## 
+## Model df: 11.   Total lags used: 14</code></pre>
+<p>The residual plots above and the Ljung-Box test indicates that there is no autocorrelation. From the summary below, the RMSE is given as 2.039</p>
+<pre class="r"><code>#holt winter&#39;s model summary
+summary(fit_holts)</code></pre>
+<pre><code>## 
+## Forecast method: Holt-Winters&#39; multiplicative method
+## 
+## Model Information:
+## Holt-Winters&#39; multiplicative method 
+## 
+## Call:
+##  hw(y = train_ts[, &quot;meantemp&quot;], seasonal = &quot;multiplicative&quot;, damped = FALSE) 
+## 
+##   Smoothing parameters:
+##     alpha = 0.6091 
+##     beta  = 5e-04 
+##     gamma = 0.0027 
+## 
+##   Initial states:
+##     l = 5.6374 
+##     b = 0.4297 
+##     s = 0.9582 0.9555 0.9387 1.0354 1.0962 1.0695
+##            0.9464
+## 
+##   sigma:  0.2716
+## 
+##      AIC     AICc      BIC 
+## 174.3851 193.8851 190.7926 
+## 
+## Error measures:
+##                      ME     RMSE      MAE       MPE     MAPE      MASE
+## Training set -0.1759436 2.039067 1.681243 -3.407764 15.23326 0.4510455
+##                    ACF1
+## Training set -0.1950938
+## 
+## Forecasts:
+##          Point Forecast     Lo 80    Hi 80       Lo 95    Hi 95
+## 2017.143       16.57158 10.802900 22.34026  7.74914465 25.39402
+## 2017.286       17.43068 10.307933 24.55343  6.53737717 28.32399
+## 2017.429       16.93207  9.140486 24.72366  5.01586872 28.84828
+## 2017.571       15.73300  7.778260 23.68774  3.56727475 27.89873
+## 2017.714       16.42541  7.447375 25.40345  2.69468839 30.15614
+## 2017.857       16.87547  7.017495 26.73344  1.79899876 31.95194
+## 2018.000       17.11677  6.521310 27.71222  0.91241414 33.32112
+## 2018.143       19.77169  6.881089 32.66229  0.05721814 39.48616
+## 2018.286       20.70643  6.568569 34.84430 -0.91556544 42.32843
+## 2018.429       20.03104  5.768135 34.29394 -1.78218826 41.84426
+## 2018.571       18.53923  4.820339 32.25812 -2.44200362 39.52047
+## 2018.714       19.28245  4.496322 34.06857 -3.33098009 41.89588
+## 2018.857       19.73972  4.092696 35.38674 -4.19033641 43.66977
+## 2019.000       19.95329  3.638189 36.26840 -4.99850511 44.90509</code></pre>
+<p>We forecast the Holt Winters Model on the training and testing data.</p>
+<pre class="r"><code>#forecast on training data
+autoplot(fit_holts)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>#forecast on testing data
+fit_holts %&gt;%
+  forecast() %&gt;%
+  autoplot() + 
+  autolayer(test_ts[, &quot;meantemp&quot;])</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+<pre class="r"><code>#accuracy of the holt winters train model
+e1 &lt;- accuracy(fit_holts)
+
+e1</code></pre>
+<pre><code>##                      ME     RMSE      MAE       MPE     MAPE      MASE
+## Training set -0.1759436 2.039067 1.681243 -3.407764 15.23326 0.4510455
+##                    ACF1
+## Training set -0.1950938</code></pre>
+<pre class="r"><code>#accuracy of the holt winters test model
+hw_lettuce_test &lt;- hw(test_ts[, &quot;meantemp&quot;],
+                      model = fit_holts)
+e2 &lt;- accuracy(hw_lettuce_test)
+
+e2</code></pre>
+<pre><code>##                       ME     RMSE      MAE        MPE     MAPE      MASE
+## Training set -0.07483383 1.656473 1.294086 -0.9493109 6.560652 0.4251317
+##                    ACF1
+## Training set 0.04032252</code></pre>
+<p>From RMSE values in the summary statistics above, the model also forecast well on the test data.</p>
+</div>
+<div id="model-comparison" class="section level1">
+<h1>Model Comparison</h1>
+<pre class="r"><code>model_comp &lt;- data.frame(ARIMA_train = a1[1:7],
+                         ARIMA_test = a2[1:7],
+                         HW_train = e1[1:7],
+                         HW_test = e2[1:7],
+                         row.names = c(&quot;ME&quot;, &quot;RMSE&quot;,
+                                       &quot;MAE&quot;, &quot;MPE&quot;,
+                                       &quot;MAPE&quot;, &quot;MASE&quot;,
+                                       &quot;ACF1&quot;))
+
+model_comp</code></pre>
+<pre><code>##      ARIMA_train ARIMA_test   HW_train     HW_test
+## ME     0.2266035  0.2054088 -0.1759436 -0.07483383
+## RMSE   1.9993135  1.7541479  2.0390669  1.65647328
+## MAE    1.5339639  1.3850134  1.6812427  1.29408594
+## MPE   -0.1518837  0.3583744 -3.4077636 -0.94931093
+## MAPE  13.4490207  6.9828210 15.2332573  6.56065158
+## MASE   0.4115334  0.4550031  0.4510455  0.42513173
+## ACF1   0.0598476  0.2717389 -0.1950938  0.04032252</code></pre>
+<p>From the RMSE values above, the ARIMA fits the training data better than the Holt Winters, but the Holt Winters gives a much more accurate forecast on testing data.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ol style="list-style-type: decimal">
+<li>Hyndman, R. J., &amp; Khandakar, Y. (2008). Automatic time series forecasting: The forecast package for R. Journal of Statistical Software, 27(1), 1–22.</li>
+<li>Hyndman, R. J, Athanasopoulos. Forecasting Principles and Practice.</li>
+</ol>
+</div>

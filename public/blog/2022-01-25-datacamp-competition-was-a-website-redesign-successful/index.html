@@ -1,0 +1,248 @@
+---
+title: DataCamp Competition - Was a website redesign successful
+author: Adejumo Ridwan Suleiman
+date: '2022-01-25'
+slug: datacamp-competition-was-a-website-redesign-successful
+toc : true
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+<div id="TOC">
+
+</div>
+
+<center>
+<em>“🧑If first you don’t succeed, try two or more times so that your failure is statistically significant”</em>
+</center>
+<div id="problem-statement" class="section level2">
+<h2>📖 Problem Statement</h2>
+<p>An early-stage start up in Germany has been working on a website redesign of their landing page. The team believes a new design will increase the number of people who click through and join the site.They have been testing the changes for a few weeks, and now they want to measure the impact of the change and need to determine if the increase can be due to random chance or if it is statistically significant.</p>
+</div>
+<div id="aims-and-objectives" class="section level2">
+<h2>Aims and Objectives</h2>
+<ol style="list-style-type: decimal">
+<li>Analyze the conversion rates for each of the four groups: the new/old design of the landing page and the new/old pictures.</li>
+<li>Can the increases observed be explained by randomness?</li>
+<li>Which version of the website should they use?</li>
+</ol>
+</div>
+<div id="data-summary" class="section level2">
+<h2>💾 Data Summary</h2>
+<pre class="r"><code>#load libraries
+library(tidyverse)
+
+#load data
+df &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/redesign.csv&quot;)
+
+head(df)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+##   treatment new_images converted
+##   &lt;chr&gt;     &lt;chr&gt;          &lt;dbl&gt;
+## 1 yes       yes                0
+## 2 yes       yes                0
+## 3 yes       yes                0
+## 4 yes       no                 0
+## 5 no        yes                0
+## 6 yes       no                 0</code></pre>
+<pre class="r"><code>skimr::skim(df)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-2">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">df</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">40484</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">3</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">2</td>
+</tr>
+<tr class="odd">
+<td align="left">numeric</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">treatment</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">new_images</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">converted</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.11</td>
+<td align="right">0.32</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>treatment</code> - “yes” if the user saw the new version of the landing page, no otherwise.</li>
+<li><code>new_images</code> - “yes” if the page used a new set of images, no otherwise.</li>
+<li><code>converted</code> - 1 if the user joined the site, 0 otherwise.</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>Their are 40484 users who have visited the site and we have no missing values in the dataset.</li>
+<li><code>Group A</code> users with “yes” in both columns: the new version with the new set of images.</li>
+<li><code>Group B</code> users with yes" in column one and “no” in column two: the new version of website with old set of images</li>
+<li><code>Group C</code> users with “no” in column one and “yes” in column two: old version of website with new set of images</li>
+<li><code>Group D</code> the control group is those users with “no” in both columns: the old version with the old set of images.</li>
+</ol>
+<div id="null-hypothesis" class="section level3">
+<h3>Null Hypothesis</h3>
+<p>Increase in users is due to chance and their is no statistical difference between the four groups.</p>
+</div>
+<div id="alternative-hypothesis" class="section level3">
+<h3>Alternative Hypothesis</h3>
+<p>Their is statistical significance difference between the four groups and increse in users was not as a result of chance.</p>
+</div>
+</div>
+<div id="ab-test" class="section level2">
+<h2>A/B Test</h2>
+<p>The A/B testing or bucket testing is a statistical methodology for comparing between two versions of a web page or mobile app to see which one drives more users. The version with the highest conversion rate wins. This will be used to answer our questions and see which of the landing page design and images is better.</p>
+</div>
+<div id="analysis" class="section level2">
+<h2>Analysis</h2>
+<div id="absolute-proportion" class="section level3">
+<h3>Absolute proportion</h3>
+<pre class="r"><code>#unite the treatment and images column to form a new column  which contains our groups
+df_new &lt;- df %&gt;% 
+  unite(&quot;group&quot;, treatment:new_images, sep = &quot;-&quot;, remove = T)
+
+# create  the table with the absolute proportion
+prop &lt;- table(df_new)
+prop_abs &lt;- addmargins(prop)
+prop_abs</code></pre>
+<pre><code>##          converted
+## group         0     1   Sum
+##   no-no    9037  1084 10121
+##   no-yes   8982  1139 10121
+##   yes-no   8906  1215 10121
+##   yes-yes  8970  1151 10121
+##   Sum     35895  4589 40484</code></pre>
+</div>
+<div id="conversion-raterelative-proportion" class="section level3">
+<h3>Conversion Rate(relative proportion)</h3>
+<pre class="r"><code># create  the table with the relative proportion
+prop_rel &lt;- prop.table(prop, 1)
+prop_rel &lt;- round(addmargins(prop_rel, 2), 3)
+prop_rel</code></pre>
+<pre><code>##          converted
+## group         0     1   Sum
+##   no-no   0.893 0.107 1.000
+##   no-yes  0.887 0.113 1.000
+##   yes-no  0.880 0.120 1.000
+##   yes-yes 0.886 0.114 1.000</code></pre>
+<ul>
+<li><code>Group A</code> (new landing page design and new images) has a conversion rate of 11.4%</li>
+<li><code>Group B</code> (new landing page design and old images) has a conversion rate of 12%</li>
+<li><code>Group C</code> (old landing page design and new images) has a conversion rate of 11.3%</li>
+<li><code>Group D</code> (old landing page design and old images) has a conversion rate of 10.7%<br />
+Clearly the highest conversion rate is Group B i.e new landing page design while retaining old images and the lowest conversion rate is Group D i.e old landing page design with old images.</li>
+</ul>
+</div>
+<div id="pearsons-chi-squared-test-of-proportion" class="section level3">
+<h3>Pearson’s Chi squared test of proportion</h3>
+<pre class="r"><code>#Pearson chi squared test for proportion
+prop.test(prop)</code></pre>
+<pre><code>## 
+##  4-sample test for equality of proportions without continuity
+##  correction
+## 
+## data:  prop
+## X-squared = 8.5261, df = 3, p-value = 0.0363
+## alternative hypothesis: two.sided
+## sample estimates:
+##    prop 1    prop 2    prop 3    prop 4 
+## 0.8928960 0.8874617 0.8799526 0.8862761</code></pre>
+<p>The Pearson’s chi squared test for proportion shows us that that the p-value is less than 0.05 which implies that the 4 groups are significantly different from each other. The null hypothesis is rejected indicating that the increase in users is not by chance.</p>
+</div>
+</div>
+<div id="recommendations" class="section level2">
+<h2>Recommendations</h2>
+<p>The website design was successful, the top conversion rates came from the new landing page designs, but the company should retain old images in the new design. This is better and will attract more people to join the site.</p>
+<p><strong>If you find this analysis interesting, please <a href="https://app.datacamp.com/workspace/w/631f6d8e-f42f-40e6-9869-33132dbc67dd">upvote</a></strong></p>
+</div>

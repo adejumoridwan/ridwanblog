@@ -1,0 +1,97 @@
+---
+title: The FizzBuzz Problem!
+author: ''
+date: '2021-12-12'
+slug: the-fizzbuzz-problem
+categories: []
+tags:
+  - Fizz
+  - Buzz
+  - FizzBuzz
+  - R
+  - Programming
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<center>
+<em>“It’s easy to lie with statistics. It’s hard to tell the truth without statistics.”</em><br />
+<em>— Andrejs Dunkels</em>
+</center>
+<style> body {text-align: justify} </style>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The FizzBuzz problem is a very popular problem given by interviewers to programmers. The problem is to print numbers 1 to N, return “Fizz” for every number that is a multiple of 3, “Buzz” for every number that is a multiple of 5 and “FizzBuzz” for every number that is a multiple of 3 and 5. The problem might look easy but it is used to test a programmers coding habit. In this post, I am going to create a function that performs the above task using the for loop and functional approach.</p>
+</div>
+<div id="using-for-loop" class="section level1">
+<h1>Using For Loop</h1>
+<pre class="r"><code>FizzBuzz &lt;- function(n){
+x &lt;- vector(&quot;double&quot;, n)
+for(i in 1:n){
+  x[i] &lt;- i
+  if(i%%3 == 0 &amp; i%%5 == 0 ){
+    x[i] = &quot;FizzBuzz&quot;
+  }
+  else if(i%%3 == 0){
+    x[i] = &quot;Fizz&quot;
+  }
+  else if(i%%5 == 0)
+    x[i] = &quot;Buzz&quot;
+ }
+print(x)
+}</code></pre>
+<p>The function contains three conditions inside a for loop, the first condition takes a number and see if it is divisible by 3 and 5 to return “FizzBuzz” if this condition is not met, it goes to the second condition and see if the number is divisible by 3 and return “Fizz” also if this is not me, the third condition returns “Buzz” if the number is divisible by 5. If all these functions are not met, the function prints the number. Modular division <code>%%</code> is used to see if the remainder is equal to zero or not.</p>
+<pre class="r"><code>FizzBuzz(20)</code></pre>
+<pre><code>##  [1] &quot;1&quot;        &quot;2&quot;        &quot;Fizz&quot;     &quot;4&quot;        &quot;Buzz&quot;     &quot;Fizz&quot;    
+##  [7] &quot;7&quot;        &quot;8&quot;        &quot;Fizz&quot;     &quot;Buzz&quot;     &quot;11&quot;       &quot;Fizz&quot;    
+## [13] &quot;13&quot;       &quot;14&quot;       &quot;FizzBuzz&quot; &quot;16&quot;       &quot;17&quot;       &quot;Fizz&quot;    
+## [19] &quot;19&quot;       &quot;Buzz&quot;</code></pre>
+</div>
+<div id="using-functionals" class="section level1">
+<h1>Using functionals</h1>
+<pre class="r"><code>FizzBuzz_2 &lt;- function(n){
+x &lt;- seq(from = 1, to = n, by = 1)
+fizz_buzz &lt;- function(x){
+  if(x%%3 == 0 &amp; x%%5 == 0){
+    print(&quot;FizzBuzz&quot;)
+  }
+  else if(x%%3 == 0){
+    print(&quot;Fizz&quot;)
+  }
+  else if(x%%5 == 0){
+    print(&quot;Buzz&quot;)
+  }
+  else(print(x))
+}
+fizzbuzz_return &lt;- sapply(x, fizz_buzz)[0]
+print(fizzbuzz_return)
+}</code></pre>
+<p>In the function, a sequence of vector-matrix <code>x</code> is created from 1 to <code>n</code> using <code>seq()</code>. Then a function with similar conditions as to the function in the for loop is created taking the vector of values <code>x</code> as input. <code>sapply()</code> is used to return the result of the function on the vector <code>x</code>.</p>
+<pre class="r"><code>FizzBuzz_2(20)</code></pre>
+<pre><code>## [1] 1
+## [1] 2
+## [1] &quot;Fizz&quot;
+## [1] 4
+## [1] &quot;Buzz&quot;
+## [1] &quot;Fizz&quot;
+## [1] 7
+## [1] 8
+## [1] &quot;Fizz&quot;
+## [1] &quot;Buzz&quot;
+## [1] 11
+## [1] &quot;Fizz&quot;
+## [1] 13
+## [1] 14
+## [1] &quot;FizzBuzz&quot;
+## [1] 16
+## [1] 17
+## [1] &quot;Fizz&quot;
+## [1] 19
+## [1] &quot;Buzz&quot;
+## character(0)</code></pre>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>Unlike other programming languages, most problems can be solved in R without using loops. This is known as vectorization and is the basis on which most R functions are built. This makes code look elegant, fast and easy to debug. That is all for this post, thanks for reading.</p>
+</div>

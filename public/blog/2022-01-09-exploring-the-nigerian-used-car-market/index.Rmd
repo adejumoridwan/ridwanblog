@@ -1,0 +1,156 @@
+---
+title: Exploring The Nigerian Used Car Market
+author: Adejumo Ridwan Suleiman
+date: '2022-01-09'
+slug: exploring-the-nigerian-used-car-market
+categories: []
+tags: []
+---
+
+<center>
+*“You can best learn data mining and data science by doing, so start analyzing data as soon as you can! However, don’t forget to learn the theory, since you need a good statistical and machine learning foundation to understand what you are doing and to find real nuggets of value in the noise of big data.”*    
+*— Gregory Piatetsky-Shapiro”*  
+</center>
+
+In this post, we are going to be looking at the a dataset from the Nigerian used car market. We are going to explore the data, do some necessary data cleaning and answer some questions about the data. The data set consists of information about  1451 cars in the Nigerian car market, you can find more details on the data set.  [here](https://www.kaggle.com/sootersaalu/nigerian-used-car-marketplace). Let's read in the data and take a brief look it.
+
+```{r, warning = F, message = F, results = T}
+library(tidyverse)
+
+car <- read_csv("C:/Users/Adejumo/Downloads/car_scrape(1).csv")
+                     
+head(car)                 
+```
+
+```{r, warning = F, message = F, results = T}
+glimpse(car)
+```
+
+```{r}
+skimr::skim(car)
+```
+From the results above, we can see that we have no missing values. There seems to be some problem with the values under year, we have presence of extreme values both at the upper and lower ends. Lets us take a closer look at the year variable.
+```{r, warning = F, message = F, results = T}
+car %>% 
+  filter(year <  1960 | year > 2021)
+```
+There are 5 cars with wrong years, this might have occurred in the entry of the data. Since the number is negligible, we can do away with the rows and proceed with our analysis. Next is to also transform the price columns by dividing the price by millions.
+```{r}
+car_data <- car %>% 
+  filter(!(year <  1960 | year > 2021)) %>% 
+  mutate(price_millions = price/1000000, .keep = "unused")
+  
+head(car_data)
+```
+Now let's start answering some interesting questions about the data.
+
+### Are locally used car more in the market?
+Some cars are used abroad and imported into the country while others are used newly in the country. Let's see the percentage of locally and foreign used cars.
+```{r, warning = F, message = F, results = T}
+car_data %>% 
+  group_by(isimported) %>% 
+  summarise(count = n()) %>% 
+  mutate(percentage = (count/sum(count))*100) %>% 
+  ggplot(aes(x = isimported, 
+             y = percentage, 
+             fill = isimported)) +
+  geom_col() +
+  labs(x = "Cars",
+       y = "Percentage",
+       title = "Percentage of the type of used car",
+       aes = "Type of Used Car") +
+  guides(fill = guide_legend(title="Type of Use"))
+```
+Wow we also have new cars in the market, but they don't seem to be much. It also seems that more foreign used cars are sold in the market. 
+
+### Prices of type of used cars
+We now know the kind of cars sold in the market, let's compare the prices and see which among the types of cars are more expensive. 
+```{r, warning = F, message = F, results = T}
+car_data %>% 
+    ggplot(aes(x = isimported,
+               y = price_millions,
+               colour = isimported))+
+  geom_boxplot()+
+  labs(x = "Cars",
+       y = "Price in millions",
+       title = "Prices of various types of car",
+       aes = "Type of Used Car") +
+  guides(fill = guide_legend(title="Type of Use"))
+```
+New cars are very expensive, an average new car is even costlier than an expensive foreign or locally used car. There are also locally and foreign used cars that seem to be on a very high price. This means that we are having problems of outliers, extreme price values especially on locally used cars which might be possible as a result of luxury cars which are very expensive. Let's  take a look on cars above 100 million naira.
+```{r, warning = F, message = F, results = T}
+car_data %>% 
+  filter(price_millions > 100)
+```
+Well guessed right, they are luxury cars!. I wish I could just be the owner of the Rolls-Royce Ghost(lol). Now let's take a critical look on foreign and locally used cars below 25 million naira since majority of them fall below this range.
+```{r, warning = F, message = F, results = T}
+car_data %>% 
+  filter(isimported != "New",
+         price_millions < 25) %>% 
+    ggplot(aes(x = isimported,
+               y = price_millions,
+               colour = isimported))+
+  geom_boxplot() +
+  labs(x = "Cars",
+       y = "Percentage",
+       title = "Percentage of the type of used car",
+       aes = "Type of Used Car") +
+  guides(fill = guide_legend(title="Type of Use"))
+```
+Most foreign used cars are expensive than locally used cars and an average foreign used car is more expensive than an expensive locally used car.
+
+### Prices of cars in various locations
+Let's see how many locations do we have.
+```{r, warning = F, message = F, results = T}
+car_data %>% 
+  group_by(location) %>% 
+  summarize(count = n()) %>% 
+  arrange(desc(count))
+```
+There is a problem, we are having `Lagos state` and `Lagos` instead of only Lagos. Let's fix this and also limit the locations to Abuja and Lagos only.
+```{r, warning = F, message = F, results = T}
+car_data %>% 
+  mutate(location = replace(location, 
+                            location == "Lagos State",
+                            "Lagos")) %>% 
+  group_by(location) %>% 
+  summarize(count = n()) %>% 
+  arrange(desc(count)) %>%
+  filter(location == c("Lagos", "Abuja"))
+```
+Now let us look at the prices of cars in the above locations.
+```{r, warning = F, message = F, results = T}
+car_data %>% 
+  mutate(location = replace(location, 
+                            location == "Lagos State",
+                            "Lagos")) %>% 
+  filter(location == c("Lagos", "Abuja")) %>% 
+  ggplot(aes(x = location,
+             y = price_millions,
+             colour = location))+
+  geom_boxplot() +
+  xlab("Location")+
+  ylab("Price in Million")+
+  ggtitle("Car price in various locations")
+```
+Well can't say much about the data but cars with a higher price tag seems to be much more in Lagos than Abuja. Lets us filter the visualization to look at cars below 25 million naira, since the box plot above shows that most of our data lies below 25 million naira.
+```{r, warning = F, message = F, results = T}
+car_data %>% 
+  mutate(location = replace(location, 
+                            location == "Lagos State",
+                            "Lagos")) %>% 
+  filter(location == c("Lagos", "Abuja"),
+         price_millions <= 25) %>% 
+  ggplot(aes(x = location,
+             y = price_millions,
+             colour = location))+
+  geom_boxplot() +
+  xlab("Location")+
+  ylab("Price in Million")+
+  ggtitle("Car price in various locations")
+  
+```
+Well a better conclusion will be that cars that majority of cars in both location have price below 9 million naira. Also, cars in Lagos have a much more higher price tag than cars in Abuja.
+
+# Conclusion
+Well that is all for this post, there are also many questions which can be answered from the data set such as how the price of car changes yearly and so on, these are all but a few. 

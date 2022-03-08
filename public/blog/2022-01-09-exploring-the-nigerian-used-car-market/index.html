@@ -1,0 +1,396 @@
+---
+title: Exploring The Nigerian Used Car Market
+author: Adejumo Ridwan Suleiman
+date: '2022-01-09'
+slug: exploring-the-nigerian-used-car-market
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<center>
+<em>“You can best learn data mining and data science by doing, so start analyzing data as soon as you can! However, don’t forget to learn the theory, since you need a good statistical and machine learning foundation to understand what you are doing and to find real nuggets of value in the noise of big data.”</em><br />
+<em>— Gregory Piatetsky-Shapiro”</em>
+</center>
+<p>In this post, we are going to be looking at the a dataset from the Nigerian used car market. We are going to explore the data, do some necessary data cleaning and answer some questions about the data. The data set consists of information about 1451 cars in the Nigerian car market, you can find more details on the data set. <a href="https://www.kaggle.com/sootersaalu/nigerian-used-car-marketplace">here</a>. Let’s read in the data and take a brief look it.</p>
+<pre class="r"><code>library(tidyverse)
+
+car &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/car_scrape(1).csv&quot;)
+                     
+head(car)                 </code></pre>
+<pre><code>## # A tibble: 6 x 10
+##   title    odometer location isimported  engine  transmission fuel  paint  price
+##   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt;
+## 1 Toyota ~    60127 Lagos    Locally us~ 4-cyli~ automatic    petr~ Silv~ 2.00e6
+## 2 Acura M~   132908 Lagos    Foreign Us~ 6-cyli~ automatic    petr~ Whine 3.32e6
+## 3 Lexus E~   120412 Lagos    Locally us~ 6-cyli~ automatic    petr~ Silv~ 2.66e6
+## 4 Mercede~    67640 Lagos    Foreign Us~ 4-cyli~ automatic    petr~ Black 9.02e6
+## 5 Mercede~    92440 Abuja    Foreign Us~ 4-cyli~ automatic    petr~ Black 5.79e6
+## 6 Mercede~    39979 Abuja    Foreign Us~ 4-cyli~ automatic    petr~ Brown 1.94e7
+## # ... with 1 more variable: year &lt;dbl&gt;</code></pre>
+<pre class="r"><code>glimpse(car)</code></pre>
+<pre><code>## Rows: 1,451
+## Columns: 10
+## $ title        &lt;chr&gt; &quot;Toyota Corolla&quot;, &quot;Acura MDX&quot;, &quot;Lexus ES 350&quot;, &quot;Mercedes-~
+## $ odometer     &lt;dbl&gt; 60127, 132908, 120412, 67640, 92440, 39979, 144211, 82828~
+## $ location     &lt;chr&gt; &quot;Lagos&quot;, &quot;Lagos&quot;, &quot;Lagos&quot;, &quot;Lagos&quot;, &quot;Abuja&quot;, &quot;Abuja&quot;, &quot;La~
+## $ isimported   &lt;chr&gt; &quot;Locally used&quot;, &quot;Foreign Used&quot;, &quot;Locally used&quot;, &quot;Foreign ~
+## $ engine       &lt;chr&gt; &quot;4-cylinder(I4)&quot;, &quot;6-cylinder(V6)&quot;, &quot;6-cylinder(V6)&quot;, &quot;4-~
+## $ transmission &lt;chr&gt; &quot;automatic&quot;, &quot;automatic&quot;, &quot;automatic&quot;, &quot;automatic&quot;, &quot;auto~
+## $ fuel         &lt;chr&gt; &quot;petrol&quot;, &quot;petrol&quot;, &quot;petrol&quot;, &quot;petrol&quot;, &quot;petrol&quot;, &quot;petrol~
+## $ paint        &lt;chr&gt; &quot;Silver&quot;, &quot;Whine&quot;, &quot;Silver&quot;, &quot;Black&quot;, &quot;Black&quot;, &quot;Brown&quot;, &quot;~
+## $ price        &lt;dbl&gt; 1995000, 3315000, 2655000, 9015000, 5790000, 19440000, 19~
+## $ year         &lt;dbl&gt; 2009, 2009, 2008, 2013, 2013, 2016, 2008, 2000, 2010, 200~</code></pre>
+<pre class="r"><code>skimr::skim(car)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-3">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">car</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">1451</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">10</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">7</td>
+</tr>
+<tr class="odd">
+<td align="left">numeric</td>
+<td align="left">3</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">title</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">37</td>
+<td align="right">0</td>
+<td align="right">240</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">location</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">16</td>
+<td align="right">0</td>
+<td align="right">13</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">isimported</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">12</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">engine</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">14</td>
+<td align="right">16</td>
+<td align="right">0</td>
+<td align="right">9</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">transmission</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">9</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">fuel</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">paint</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">23</td>
+<td align="right">0</td>
+<td align="right">75</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">odometer</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">116802.14</td>
+<td align="right">115841.9</td>
+<td align="right">0</td>
+<td align="right">53338</td>
+<td align="right">92919</td>
+<td align="right">152769.5</td>
+<td align="right">1775588</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">price</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">8431088.23</td>
+<td align="right">13089603.8</td>
+<td align="right">400000</td>
+<td align="right">2615000</td>
+<td align="right">4215000</td>
+<td align="right">8865000.0</td>
+<td align="right">167015008</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">year</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2008.59</td>
+<td align="right">39.2</td>
+<td align="right">1217</td>
+<td align="right">2006</td>
+<td align="right">2010</td>
+<td align="right">2014.0</td>
+<td align="right">2626</td>
+<td align="left">▁▁▇▁▁</td>
+</tr>
+</tbody>
+</table>
+<p>From the results above, we can see that we have no missing values. There seems to be some problem with the values under year, we have presence of extreme values both at the upper and lower ends. Lets us take a closer look at the year variable.</p>
+<pre class="r"><code>car %&gt;% 
+  filter(year &lt;  1960 | year &gt; 2021)</code></pre>
+<pre><code>## # A tibble: 5 x 10
+##   title     odometer location isimported  engine transmission fuel  paint  price
+##   &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt;
+## 1 Mercedes~   403461 Lagos    Locally us~ 4-cyl~ manual       dies~ white 6.02e6
+## 2 Mercedes~   701934 Lagos    Locally us~ 8-cyl~ manual       dies~ white 1.20e7
+## 3 Mercedes~        0 Lagos    Locally us~ 8-cyl~ manual       dies~ white 1.20e7
+## 4 Mercedes~   510053 Lagos    Locally us~ 6-cyl~ manual       dies~ white 7.50e7
+## 5 Mercedes~   650923 Lagos    Locally us~ 6-cyl~ manual       dies~ blue  7.02e6
+## # ... with 1 more variable: year &lt;dbl&gt;</code></pre>
+<p>There are 5 cars with wrong years, this might have occurred in the entry of the data. Since the number is negligible, we can do away with the rows and proceed with our analysis. Next is to also transform the price columns by dividing the price by millions.</p>
+<pre class="r"><code>car_data &lt;- car %&gt;% 
+  filter(!(year &lt;  1960 | year &gt; 2021)) %&gt;% 
+  mutate(price_millions = price/1000000, .keep = &quot;unused&quot;)
+  
+head(car_data)</code></pre>
+<pre><code>## # A tibble: 6 x 10
+##   title     odometer location isimported  engine  transmission fuel  paint  year
+##   &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;
+## 1 Toyota C~    60127 Lagos    Locally us~ 4-cyli~ automatic    petr~ Silv~  2009
+## 2 Acura MDX   132908 Lagos    Foreign Us~ 6-cyli~ automatic    petr~ Whine  2009
+## 3 Lexus ES~   120412 Lagos    Locally us~ 6-cyli~ automatic    petr~ Silv~  2008
+## 4 Mercedes~    67640 Lagos    Foreign Us~ 4-cyli~ automatic    petr~ Black  2013
+## 5 Mercedes~    92440 Abuja    Foreign Us~ 4-cyli~ automatic    petr~ Black  2013
+## 6 Mercedes~    39979 Abuja    Foreign Us~ 4-cyli~ automatic    petr~ Brown  2016
+## # ... with 1 more variable: price_millions &lt;dbl&gt;</code></pre>
+<p>Now let’s start answering some interesting questions about the data.</p>
+<div id="are-locally-used-car-more-in-the-market" class="section level3">
+<h3>Are locally used car more in the market?</h3>
+<p>Some cars are used abroad and imported into the country while others are used newly in the country. Let’s see the percentage of locally and foreign used cars.</p>
+<pre class="r"><code>car_data %&gt;% 
+  group_by(isimported) %&gt;% 
+  summarise(count = n()) %&gt;% 
+  mutate(percentage = (count/sum(count))*100) %&gt;% 
+  ggplot(aes(x = isimported, 
+             y = percentage, 
+             fill = isimported)) +
+  geom_col() +
+  labs(x = &quot;Cars&quot;,
+       y = &quot;Percentage&quot;,
+       title = &quot;Percentage of the type of used car&quot;,
+       aes = &quot;Type of Used Car&quot;) +
+  guides(fill = guide_legend(title=&quot;Type of Use&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+Wow we also have new cars in the market, but they don’t seem to be much. It also seems that more foreign used cars are sold in the market.</p>
+</div>
+<div id="prices-of-type-of-used-cars" class="section level3">
+<h3>Prices of type of used cars</h3>
+<p>We now know the kind of cars sold in the market, let’s compare the prices and see which among the types of cars are more expensive.</p>
+<pre class="r"><code>car_data %&gt;% 
+    ggplot(aes(x = isimported,
+               y = price_millions,
+               colour = isimported))+
+  geom_boxplot()+
+  labs(x = &quot;Cars&quot;,
+       y = &quot;Price in millions&quot;,
+       title = &quot;Prices of various types of car&quot;,
+       aes = &quot;Type of Used Car&quot;) +
+  guides(fill = guide_legend(title=&quot;Type of Use&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+New cars are very expensive, an average new car is even costlier than an expensive foreign or locally used car. There are also locally and foreign used cars that seem to be on a very high price. This means that we are having problems of outliers, extreme price values especially on locally used cars which might be possible as a result of luxury cars which are very expensive. Let’s take a look on cars above 100 million naira.</p>
+<pre class="r"><code>car_data %&gt;% 
+  filter(price_millions &gt; 100)</code></pre>
+<pre><code>## # A tibble: 6 x 10
+##   title     odometer location isimported  engine  transmission fuel  paint  year
+##   &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;
+## 1 Land Rov~    13687 Lagos    Foreign Us~ 8-cyli~ automatic    petr~ Green  2019
+## 2 Mercedes~       20 Lagos    New         8-cyli~ automatic    petr~ Black  2019
+## 3 Mercedes~     6758 Lagos    New         12-cyl~ automatic    petr~ Black  2019
+## 4 Land Rov~    18720 Lagos    Foreign Us~ 8-cyli~ automatic    petr~ Grey   2019
+## 5 Lexus LX~    55530 Abuja    Foreign Us~ 8-cyli~ automatic    petr~ Black  2014
+## 6 Rolls-Ro~    16069 Lagos    Locally us~ 4-cyli~ automatic    petr~ Black  2011
+## # ... with 1 more variable: price_millions &lt;dbl&gt;</code></pre>
+<p>Well guessed right, they are luxury cars!. I wish I could just be the owner of the Rolls-Royce Ghost(lol). Now let’s take a critical look on foreign and locally used cars below 25 million naira since majority of them fall below this range.</p>
+<pre class="r"><code>car_data %&gt;% 
+  filter(isimported != &quot;New&quot;,
+         price_millions &lt; 25) %&gt;% 
+    ggplot(aes(x = isimported,
+               y = price_millions,
+               colour = isimported))+
+  geom_boxplot() +
+  labs(x = &quot;Cars&quot;,
+       y = &quot;Percentage&quot;,
+       title = &quot;Percentage of the type of used car&quot;,
+       aes = &quot;Type of Used Car&quot;) +
+  guides(fill = guide_legend(title=&quot;Type of Use&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+Most foreign used cars are expensive than locally used cars and an average foreign used car is more expensive than an expensive locally used car.</p>
+</div>
+<div id="prices-of-cars-in-various-locations" class="section level3">
+<h3>Prices of cars in various locations</h3>
+<p>Let’s see how many locations do we have.</p>
+<pre class="r"><code>car_data %&gt;% 
+  group_by(location) %&gt;% 
+  summarize(count = n()) %&gt;% 
+  arrange(desc(count))</code></pre>
+<pre><code>## # A tibble: 13 x 2
+##    location         count
+##    &lt;chr&gt;            &lt;int&gt;
+##  1 Lagos             1159
+##  2 Abuja              216
+##  3 Ogun                34
+##  4 Lagos State         21
+##  5 other                5
+##  6 Abia                 2
+##  7 FCT                  2
+##  8 Ogun State           2
+##  9 Abia State           1
+## 10 Accra                1
+## 11 Adamawa              1
+## 12 Arepo ogun state     1
+## 13 Mushin               1</code></pre>
+<p>There is a problem, we are having <code>Lagos state</code> and <code>Lagos</code> instead of only Lagos. Let’s fix this and also limit the locations to Abuja and Lagos only.</p>
+<pre class="r"><code>car_data %&gt;% 
+  mutate(location = replace(location, 
+                            location == &quot;Lagos State&quot;,
+                            &quot;Lagos&quot;)) %&gt;% 
+  group_by(location) %&gt;% 
+  summarize(count = n()) %&gt;% 
+  arrange(desc(count)) %&gt;%
+  filter(location == c(&quot;Lagos&quot;, &quot;Abuja&quot;))</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   location count
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 Lagos     1180
+## 2 Abuja      216</code></pre>
+<p>Now let us look at the prices of cars in the above locations.</p>
+<pre class="r"><code>car_data %&gt;% 
+  mutate(location = replace(location, 
+                            location == &quot;Lagos State&quot;,
+                            &quot;Lagos&quot;)) %&gt;% 
+  filter(location == c(&quot;Lagos&quot;, &quot;Abuja&quot;)) %&gt;% 
+  ggplot(aes(x = location,
+             y = price_millions,
+             colour = location))+
+  geom_boxplot() +
+  xlab(&quot;Location&quot;)+
+  ylab(&quot;Price in Million&quot;)+
+  ggtitle(&quot;Car price in various locations&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+Well can’t say much about the data but cars with a higher price tag seems to be much more in Lagos than Abuja. Lets us filter the visualization to look at cars below 25 million naira, since the box plot above shows that most of our data lies below 25 million naira.</p>
+<pre class="r"><code>car_data %&gt;% 
+  mutate(location = replace(location, 
+                            location == &quot;Lagos State&quot;,
+                            &quot;Lagos&quot;)) %&gt;% 
+  filter(location == c(&quot;Lagos&quot;, &quot;Abuja&quot;),
+         price_millions &lt;= 25) %&gt;% 
+  ggplot(aes(x = location,
+             y = price_millions,
+             colour = location))+
+  geom_boxplot() +
+  xlab(&quot;Location&quot;)+
+  ylab(&quot;Price in Million&quot;)+
+  ggtitle(&quot;Car price in various locations&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+Well a better conclusion will be that cars that majority of cars in both location have price below 9 million naira. Also, cars in Lagos have a much more higher price tag than cars in Abuja.</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>Well that is all for this post, there are also many questions which can be answered from the data set such as how the price of car changes yearly and so on, these are all but a few.</p>
+</div>

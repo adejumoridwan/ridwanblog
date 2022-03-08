@@ -1,0 +1,76 @@
+---
+title: The FizzBuzz Problem!
+author: ''
+date: '2021-12-12'
+slug: the-fizzbuzz-problem
+categories: []
+tags:
+  - Fizz
+  - Buzz
+  - FizzBuzz
+  - R
+  - Programming
+---
+
+<center>
+*“It’s easy to lie with statistics. It’s hard to tell the truth without statistics.”*  
+*— Andrejs Dunkels*
+</center>
+
+<style> body {text-align: justify} </style>
+
+# Introduction
+The FizzBuzz problem is a very popular problem given by interviewers to programmers. The problem is to print numbers 1 to N, return "Fizz" for every number that is a multiple of 3, "Buzz" for every number that is a multiple of 5 and "FizzBuzz" for every number that is a multiple of 3 and 5. The problem might look easy but it is used to test a programmers coding habit. In this post, I am going to create a function that performs the above task using the for loop and functional approach.
+
+# Using For Loop
+```{r, warning=F, message=F, results=T}
+FizzBuzz <- function(n){
+x <- vector("double", n)
+for(i in 1:n){
+  x[i] <- i
+  if(i%%3 == 0 & i%%5 == 0 ){
+    x[i] = "FizzBuzz"
+  }
+  else if(i%%3 == 0){
+    x[i] = "Fizz"
+  }
+  else if(i%%5 == 0)
+    x[i] = "Buzz"
+ }
+print(x)
+}
+```
+The function contains three conditions inside a for loop, the first condition takes a number and see if it is divisible by 3 and 5 to return "FizzBuzz" if this condition is not met, it goes to the second condition and see if the number is divisible by 3 and return "Fizz" also if this is not me, the third condition returns "Buzz" if the number is divisible by 5. If all these functions are not met, the function prints the number. Modular division `%%` is used to see if the remainder is equal to zero or not.
+```{r,message=F, warning=F, R}
+FizzBuzz(20)
+```
+
+# Using functionals
+```{r, warning=F, message=F, results=T}
+FizzBuzz_2 <- function(n){
+x <- seq(from = 1, to = n, by = 1)
+fizz_buzz <- function(x){
+  if(x%%3 == 0 & x%%5 == 0){
+    print("FizzBuzz")
+  }
+  else if(x%%3 == 0){
+    print("Fizz")
+  }
+  else if(x%%5 == 0){
+    print("Buzz")
+  }
+  else(print(x))
+}
+fizzbuzz_return <- sapply(x, fizz_buzz)[0]
+print(fizzbuzz_return)
+}
+```
+In the function, a sequence of vector-matrix `x` is created from 1 to `n` using `seq()`. Then a function with similar conditions as to the function in the for loop is created taking the vector of values `x` as input. `sapply()` is used to return the result of the function on the vector `x`.
+```{r,warning=F, results=T, message=F}
+FizzBuzz_2(20)
+```
+
+# Conclusion
+Unlike other programming languages, most problems can be solved in R without using loops. This is known as vectorization and is the basis on which most R functions are built. This makes code look elegant, fast and easy to debug. That is all for this post, thanks for reading.
+
+

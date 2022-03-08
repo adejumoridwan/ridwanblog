@@ -1,0 +1,68 @@
+---
+title: Matrix Multiplication Using "For Loops"
+author: Adejumo Ridwan Suleiman
+date: '2021-12-29'
+slug: Matrix multiplication with for loops
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<center>
+<em>“That’s all data is. A gift from yesterday that you receive today to make tomorrow better”</em><br />
+<em>— Jon Acuff</em>
+</center>
+<style> body {text-align: justify} </style>
+<p>Linear Algebra is a branch of mathematics that deals with vectors and matrices, though some find it difficult, I still find it easier than good old calculus. Vectors and matrices are very important data structures in R, which is why the knowledge of linear algebra is very important. This post is going to use our understanding of “for loops” to explain matrix multiplication in R.<br />
+Firstly we are going to define two matrices, <code>a</code> which is a (4x3) matrix and <code>b</code> which is a (3x4) matrix, multiplying the two matrices will give us <code>c</code> which is a (4x4) matrix.</p>
+<pre class="r"><code>a &lt;- matrix(c(9, 4 , 12, 5, 0, 7, 2, 6, 8, 9, 2, 9),
+            nrow = 4, byrow = TRUE)
+
+a</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    9    4   12
+## [2,]    5    0    7
+## [3,]    2    6    8
+## [4,]    9    2    9</code></pre>
+<pre class="r"><code>b &lt;- matrix(c(5, 4, 2, 5, 2, 7, 2, 1, 8, 3, 2, 6),
+            nrow = 3, byrow = TRUE)
+
+b</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]    5    4    2    5
+## [2,]    2    7    2    1
+## [3,]    8    3    2    6</code></pre>
+<p>The following code below is a function to perform the matrix multiplication between <code>a</code> and to <code>b</code> produce a matrix <code>c</code>.</p>
+<pre class="r"><code>mat_mup &lt;- function(a, b){
+  if(ncol(a) != nrow(b)){
+    return(&quot;can&#39;t multiply&quot;)
+  }
+  else{
+    c = matrix(rep(0, nrow(a)*ncol(b)), 
+               nrow = nrow(a))
+    for(i in 1:nrow(a)){
+      for(j in 1:ncol(b)){
+        for(k in 1:nrow(b)){
+          c[i,j] &lt;- c[i,j] + a[i,k]*b[k, j]
+        }
+      }
+    }
+  }
+  return(c)
+}</code></pre>
+<p>In the code above we create a function called <code>mat_mup</code>, the function returns “can’t multiply” if the number of columns in the matrix <code>a</code> does not match the number of rows in matrix <code>b</code>. The second condition performs the matrix operation making use of three for loops, the first <code>for loop</code> takes <code>i</code> values for the number of rows in the matrix <code>a</code>, the second <code>for loop</code> takes <code>j</code> for the number of columns in matrix <code>b</code> and the third <code>for loop</code> takes <code>k</code> for the number of rows in matrix <code>b</code>. The function returns a matrix <code>c</code>, the result of multiplying <code>a</code> and <code>b</code>.</p>
+<pre class="r"><code>mat_mup(a,b)</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]  149  100   50  121
+## [2,]   81   41   24   67
+## [3,]   86   74   32   64
+## [4,]  121   77   40  101</code></pre>
+<p>Imagine having to always do the above just to multiply two matrices. R has a built-in operator that handles matrix multiplication. Ever taught why matrix <code>a*b</code> returns an error in R, well I leave that to you to figure out. The <code>%*%</code> operator is used to multiply matrices.</p>
+<pre class="r"><code>a %*% b</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]  149  100   50  121
+## [2,]   81   41   24   67
+## [3,]   86   74   32   64
+## [4,]  121   77   40  101</code></pre>

@@ -1,0 +1,412 @@
+---
+title: Employee Turnover Prediction
+author: Adejumo Ridwan Suleiman
+date: '2022-02-21'
+slug: employee-turnover-prediction
+categories: []
+tags: []
+ShowToc: true
+TocOpen: true
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="a-picture-is-worth-a-thousand-words" class="section level1">
+<h1>💪🧑A Picture is worth a thousand words</h1>
+<div id="problem-statement" class="section level2">
+<h2>Problem Statement</h2>
+<p>The human capital department of a large corporation wants to know why their is a high employee turnover, they also want to understand which employees are more likely to leave, and why.</p>
+</div>
+<div id="aim-and-objectives" class="section level2">
+<h2>Aim and Objectives</h2>
+<ol style="list-style-type: decimal">
+<li>Which department has the highest employee turnover? Which one has the lowest?</li>
+<li>Investigate which variables seem to be better predictors of employee departure.</li>
+<li>Recommendations to help reduce employee turnover</li>
+</ol>
+</div>
+<div id="loading-and-data" class="section level2">
+<h2>Loading and Data</h2>
+<pre class="r"><code>head(df)</code></pre>
+<pre><code>## # A tibble: 6 x 10
+##   department promoted review projects salary tenure satisfaction bonus
+##   &lt;chr&gt;         &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt;
+## 1 operations        0  0.578        3 low         5        0.627     0
+## 2 operations        0  0.752        3 medium      6        0.444     0
+## 3 support           0  0.723        3 medium      6        0.447     0
+## 4 logistics         0  0.675        4 high        8        0.440     0
+## 5 sales             0  0.676        3 high        5        0.578     1
+## 6 IT                0  0.683        2 medium      5        0.565     1
+## # ... with 2 more variables: avg_hrs_month &lt;dbl&gt;, left &lt;chr&gt;</code></pre>
+</div>
+<div id="exploratory-data-analysis" class="section level2">
+<h2>Exploratory Data Analysis</h2>
+<pre class="r"><code>glimpse(df)</code></pre>
+<pre><code>## Rows: 9,540
+## Columns: 10
+## $ department    &lt;chr&gt; &quot;operations&quot;, &quot;operations&quot;, &quot;support&quot;, &quot;logistics&quot;, &quot;sal~
+## $ promoted      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
+## $ review        &lt;dbl&gt; 0.5775687, 0.7518997, 0.7225484, 0.6751583, 0.6762032, 0~
+## $ projects      &lt;dbl&gt; 3, 3, 3, 4, 3, 2, 4, 4, 4, 3, 4, 3, 3, 3, 3, 3, 4, 4, 3,~
+## $ salary        &lt;chr&gt; &quot;low&quot;, &quot;medium&quot;, &quot;medium&quot;, &quot;high&quot;, &quot;high&quot;, &quot;medium&quot;, &quot;hi~
+## $ tenure        &lt;dbl&gt; 5, 6, 6, 8, 5, 5, 5, 7, 6, 6, 5, 5, 6, 5, 6, 6, 6, 5, 6,~
+## $ satisfaction  &lt;dbl&gt; 0.6267590, 0.4436790, 0.4468232, 0.4401387, 0.5776074, 0~
+## $ bonus         &lt;dbl&gt; 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,~
+## $ avg_hrs_month &lt;dbl&gt; 180.8661, 182.7081, 184.4161, 188.7075, 179.8211, 178.84~
+## $ left          &lt;chr&gt; &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;n~</code></pre>
+<pre class="r"><code>skimr::skim(df)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-4">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">df</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">9540</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">10</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">3</td>
+</tr>
+<tr class="odd">
+<td align="left">numeric</td>
+<td align="left">7</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">department</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">11</td>
+<td align="right">0</td>
+<td align="right">10</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">salary</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">left</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">promoted</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.03</td>
+<td align="right">0.17</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1.00</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">review</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.65</td>
+<td align="right">0.09</td>
+<td align="right">0.31</td>
+<td align="right">0.59</td>
+<td align="right">0.65</td>
+<td align="right">0.71</td>
+<td align="right">1.00</td>
+<td align="left">▁▃▇▃▁</td>
+</tr>
+<tr class="odd">
+<td align="left">projects</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">3.27</td>
+<td align="right">0.58</td>
+<td align="right">2.00</td>
+<td align="right">3.00</td>
+<td align="right">3.00</td>
+<td align="right">4.00</td>
+<td align="right">5.00</td>
+<td align="left">▁▇▁▅▁</td>
+</tr>
+<tr class="even">
+<td align="left">tenure</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">6.56</td>
+<td align="right">1.42</td>
+<td align="right">2.00</td>
+<td align="right">5.00</td>
+<td align="right">7.00</td>
+<td align="right">8.00</td>
+<td align="right">12.00</td>
+<td align="left">▁▇▇▂▁</td>
+</tr>
+<tr class="odd">
+<td align="left">satisfaction</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.50</td>
+<td align="right">0.16</td>
+<td align="right">0.00</td>
+<td align="right">0.39</td>
+<td align="right">0.50</td>
+<td align="right">0.62</td>
+<td align="right">1.00</td>
+<td align="left">▁▅▇▅▁</td>
+</tr>
+<tr class="even">
+<td align="left">bonus</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.21</td>
+<td align="right">0.41</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1.00</td>
+<td align="left">▇▁▁▁▂</td>
+</tr>
+<tr class="odd">
+<td align="left">avg_hrs_month</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">184.66</td>
+<td align="right">4.14</td>
+<td align="right">171.37</td>
+<td align="right">181.47</td>
+<td align="right">184.63</td>
+<td align="right">187.73</td>
+<td align="right">200.86</td>
+<td align="left">▁▆▇▂▁</td>
+</tr>
+</tbody>
+</table>
+<p>The summary table above shows no missing values and also outliers in the data. The numerical variables are also normally distributed.</p>
+<div id="employee-turnover-rate" class="section level3">
+<h3>Employee Turnover Rate</h3>
+<p>Let’s calculate the employee turnover rate in each department. The employee turnover rate is calculated by dividing the number of employees who left the company by the average number of employees (employees at beginning + employees at the end)/2). This number is then multiplied by 100 to get a percentage.</p>
+<pre class="r"><code>status_count&lt;- as.data.frame.matrix(df %&gt;%
+group_by(department) %&gt;%
+select(department, left) %&gt;%
+ungroup(department) %&gt;% 
+table())
+
+status_count &lt;- status_count %&gt;% 
+  mutate(total = no + yes,
+         turnover_rate = (yes/(total + no)/2)*100)
+
+status_count %&gt;% 
+  as.data.frame() %&gt;% 
+  select(turnover_rate) %&gt;% 
+  arrange(desc(turnover_rate))</code></pre>
+<pre><code>##             turnover_rate
+## IT               9.136213
+## logistics        9.113300
+## retail           9.019533
+## marketing        8.927259
+## support          8.426073
+## engineering      8.420039
+## operations       8.358896
+## sales            8.315268
+## admin            8.184319
+## finance          7.758621</code></pre>
+<pre class="r"><code>mean(status_count$turnover_rate)</code></pre>
+<pre><code>## [1] 8.565952</code></pre>
+<pre class="r"><code>range(status_count$turnover_rate)</code></pre>
+<pre><code>## [1] 7.758621 9.136213</code></pre>
+<p>The average employee turnover rate is 8.57% with the IT department having the highest employee turnover rate of 9.14% while finance has the lowest employee turnover rate of 7.76%.</p>
+</div>
+<div id="relationship-between-employer-review-job-satisfaction-and-average-monthly-hours" class="section level3">
+<h3>Relationship between employer review, job satisfaction and average monthly hours</h3>
+<pre class="r"><code>df %&gt;% 
+  select(review, satisfaction, avg_hrs_month) %&gt;% 
+  cor() %&gt;% 
+  corrplot::corrplot(method = &quot;number&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+Job satisfaction, review and average monthly hours have a weak negative relationship. This implies that we can assume that no relationship exists between these variables.</p>
+</div>
+<div id="does-working-hours-affects-employee-departure" class="section level3">
+<h3>Does working hours affects employee departure?</h3>
+<p>Sometimes high working hours might make an employee to leave a company, lack of time for one’s personal life and family, this makes some employee to ask for a pay raise for the value of the time been spent. Let’s see how this factor relates to employee departure and the salary scale.</p>
+<pre class="r"><code>df %&gt;% 
+  ggplot(aes(x = left, y = avg_hrs_month, colour = left)) +
+  geom_boxplot(outlier.colour = NA) + 
+  geom_jitter(alpha = 0.05, width = 0.1) +
+  facet_wrap(vars(salary), 
+             scales = &quot;free&quot;, 
+             ncol = 3) +
+  xlab(&quot;Employee Departure&quot;) +
+  ylab(&quot; Average working hours in a month&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+Employees who left the company have an average hour of more than 185 hours per month which is higher than the number of hours spent by those still working in the organization. As expected, seems some of the employees who left the organization spent more time at work. Employees with medium salary scale have the highest average amount of hours per month and most of the departure comes from employees with the medium salary scale.</p>
+</div>
+<div id="are-employees-leaving-as-a-result-of-bad-reviews-from-employer" class="section level3">
+<h3>Are employees leaving as a result of bad reviews from employer?</h3>
+<pre class="r"><code>df %&gt;% 
+  ggplot(aes(x = left, y = review, colour = left)) +
+  geom_boxplot(outlier.colour = NA) + 
+  geom_jitter(alpha = 0.05, width = 0.1) +
+  facet_wrap(vars(salary), 
+             scales = &quot;free&quot;, 
+             ncol = 3) +
+  xlab(&quot;Employee Departure&quot;) +
+  ylab(&quot;Employer Review&quot;) </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+Employees leaving the organization were having great reviews, their average review falls in the range of 0.68 to 0.73. These employees were hardworking a reason why their departure is a great source of concern for the organization, it is possible that since their departure organizational performance must have reduced.</p>
+</div>
+<div id="are-employes-not-satisfied-with-their-job" class="section level3">
+<h3>Are employes not satisfied with their job?</h3>
+<pre class="r"><code>df %&gt;% 
+  ggplot(aes(x = left, y = satisfaction, colour = left)) +
+  geom_boxplot(outlier.colour = NA) + 
+  geom_jitter(alpha = 0.05, width = 0.1) +
+  facet_grid(cols = vars(promoted))+
+  xlab(&quot;Employee Departure&quot;) +
+  ylab(&quot;Job Satisfaction&quot;) </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+Few people have been promoted during the past 24 months and the average job satisfaction in the organization falls between 0.55-0.45, this is a low figure and employees are likely to leave the organization.
+Promoted employees recorded a very low average job satisfaction, though they are not much.</p>
+</div>
+</div>
+<div id="model-building" class="section level2">
+<h2>Model Building</h2>
+<p>After performing an exploratory data analysis and understanding our data, we will use the xgboost model to predict employee departure.
+the given dataset.</p>
+<div id="xgboost-model" class="section level3">
+<h3>XGboost Model</h3>
+<pre class="r"><code>### Data Split
+set.seed(2022)
+df_split &lt;- initial_split(
+  df, 
+  prop = 0.2, 
+  strata = left
+)
+
+#Data Preprocessing
+xgboost_recipe &lt;- 
+  recipe(formula = left ~ ., data = training(df_split)) %&gt;% 
+  step_dummy(all_nominal_predictors()) %&gt;% 
+  # step_zv removes variables that contain only a single value
+  step_zv(all_predictors())
+
+#model specification
+xgboost_spec &lt;- 
+  boost_tree(trees = 100) %&gt;% 
+  set_mode(&quot;classification&quot;) %&gt;% 
+  set_engine(&quot;xgboost&quot;) 
+
+#model workflow
+xgboost_workflow &lt;- 
+  workflow() %&gt;% 
+  add_recipe(xgboost_recipe) %&gt;% 
+  add_model(xgboost_spec)
+
+#fit model
+xgb_fit &lt;- xgboost_workflow %&gt;% 
+  fit(training(df_split))</code></pre>
+<pre><code>## [09:08:44] WARNING: amalgamation/../src/learner.cc:1115: Starting in XGBoost 1.3.0, the default evaluation metric used with the objective &#39;binary:logistic&#39; was changed from &#39;error&#39; to &#39;logloss&#39;. Explicitly set eval_metric if you&#39;d like to restore the old behavior.</code></pre>
+<pre class="r"><code>#Predicted results on test data
+pred_class &lt;- predict(xgb_fit, 
+                     testing(df_split),
+                     type = &quot;class&quot;)
+
+pred_results &lt;- testing(df_split) %&gt;% 
+  select(left) %&gt;% 
+  bind_cols(pred_class) %&gt;% 
+  mutate_at(vars(left), as.factor)
+  
+#model accuracy
+accuracy(pred_results,
+          truth = left,
+          estimate = .pred_class)</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy binary         0.853</code></pre>
+<pre class="r"><code>#variables importance
+xgb_fit %&gt;% 
+  pull_workflow_fit() %&gt;%
+  vip(geom = &quot;col&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>The model accuracy on the test dataset is about 85.3% which is good, the variables average hours per month, job satisfaction and review were shown to be the most important in the model.</p>
+</div>
+</div>
+</div>
+<div id="recommendations" class="section level1">
+<h1>Recommendations</h1>
+<p>Working hours appears to be the most important factor in employee departure. The organization should try to reduce the number of hours spent by an employee especially those working in departments with high turnover rate such as IT department. Most staffs leaving have a good working record with the organization, to encourage staffs staying, the management needs to increase their pay and offer promotion to them when due as a reward for their hard-work. These conditions if met is likely to increase employees job satisfaction, this will help to curb the high rate of employee turnover.</p>
+</div>

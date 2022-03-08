@@ -1,0 +1,199 @@
+---
+title: Employee Turnover Prediction
+author: Adejumo Ridwan Suleiman
+date: '2022-02-21'
+slug: employee-turnover-prediction
+categories: []
+tags: []
+ShowToc: true
+TocOpen: true
+---
+
+# 💪🧑A Picture is worth a thousand words
+
+## Problem Statement
+The human capital department of a large corporation wants to know why their is a high employee turnover, they also want to understand which employees are more likely to leave, and why.
+
+## Aim and Objectives
+1. Which department has the highest employee turnover? Which one has the lowest?
+2. Investigate which variables seem to be better predictors of employee departure.
+3. Recommendations to help reduce employee turnover
+
+## Loading and Data
+```{r, include=F}
+#load libraries
+library(tidyverse)
+library(tidymodels)
+
+#install.packages("xgboost")
+library(xgboost)
+
+#install.packages("vip")
+library(vip)
+
+#install.packages("corrplot")
+library(corrplot)
+
+#load data
+df <- readr::read_csv("C:/Users/Adejumo/Downloads/employee_churn_data.csv")
+
+```
+
+```{r, warning = F, messages = F, results=T}
+head(df)
+```
+
+## Exploratory Data Analysis
+```{r, warning = F, messages = F, results=T}
+glimpse(df)
+```
+
+```{r, warning = F, messages = F, results=T}
+skimr::skim(df)
+```
+
+The summary table above shows no missing values and also outliers in the data. The numerical variables are also normally distributed.
+
+### Employee Turnover Rate
+Let's calculate the employee turnover rate in each department. The employee turnover rate is calculated by dividing the number of employees who left the company by the average number of employees (employees at beginning + employees at the end)/2). This number is then multiplied by 100 to get a percentage.
+```{r, warning = F, messages = F, results=T}
+status_count<- as.data.frame.matrix(df %>%
+group_by(department) %>%
+select(department, left) %>%
+ungroup(department) %>% 
+table())
+
+status_count <- status_count %>% 
+  mutate(total = no + yes,
+         turnover_rate = (yes/(total + no)/2)*100)
+
+status_count %>% 
+  as.data.frame() %>% 
+  select(turnover_rate) %>% 
+  arrange(desc(turnover_rate))
+```
+
+```{r, warning = F, messages = F, results=T}
+mean(status_count$turnover_rate)
+```
+
+```{r, warning = F, messages = F, results=T}
+range(status_count$turnover_rate)
+```
+The average employee turnover rate is 8.57% with the IT department having the highest employee turnover rate of 9.14% while finance has the lowest employee turnover rate of 7.76%.
+
+### Relationship between employer review, job satisfaction and average monthly hours
+```{r, warning = F, messages = F, results=T}
+df %>% 
+  select(review, satisfaction, avg_hrs_month) %>% 
+  cor() %>% 
+  corrplot::corrplot(method = "number")
+```
+Job satisfaction, review and average monthly hours have a weak negative relationship. This implies that we can assume that no relationship exists between these variables.
+
+### Does working hours affects employee departure?
+Sometimes high working hours might make an employee to leave a company, lack of time for one's personal life and family, this makes some employee to ask for a pay raise for the value of the time been spent. Let's see how this factor relates to employee departure and the salary scale.
+```{r, warning = F, messages = F, results=T}
+df %>% 
+  ggplot(aes(x = left, y = avg_hrs_month, colour = left)) +
+  geom_boxplot(outlier.colour = NA) + 
+  geom_jitter(alpha = 0.05, width = 0.1) +
+  facet_wrap(vars(salary), 
+             scales = "free", 
+             ncol = 3) +
+  xlab("Employee Departure") +
+  ylab(" Average working hours in a month")
+```
+Employees who left the company have an average hour of more than 185 hours per month which is higher than the number of hours spent by those still working in the organization. As expected, seems some of the employees who left the organization spent more time at work. Employees with medium salary scale have the highest average amount of hours per month and most of the departure comes from employees with the medium salary scale.
+
+### Are employees leaving as a result of bad reviews from employer?
+```{r, warning = F, messages = F, results=T}
+df %>% 
+  ggplot(aes(x = left, y = review, colour = left)) +
+  geom_boxplot(outlier.colour = NA) + 
+  geom_jitter(alpha = 0.05, width = 0.1) +
+  facet_wrap(vars(salary), 
+             scales = "free", 
+             ncol = 3) +
+  xlab("Employee Departure") +
+  ylab("Employer Review") 
+```
+Employees leaving the organization were having great reviews, their average review falls in the range of 0.68 to 0.73. These employees were hardworking a reason why their departure is a great source of concern for the organization, it is possible that since their departure organizational performance must have reduced.
+
+### Are employes not satisfied with their job?
+```{r, warning = F, messages = F, results=T}
+df %>% 
+  ggplot(aes(x = left, y = satisfaction, colour = left)) +
+  geom_boxplot(outlier.colour = NA) + 
+  geom_jitter(alpha = 0.05, width = 0.1) +
+  facet_grid(cols = vars(promoted))+
+  xlab("Employee Departure") +
+  ylab("Job Satisfaction") 
+```
+Few people have been promoted during the past 24 months and the average job satisfaction in the organization falls between 0.55-0.45, this is a low figure and employees are likely to leave the organization.
+Promoted employees recorded a very low average job satisfaction, though they are not much.
+
+## Model Building
+After performing an exploratory data analysis and understanding our data, we will use the xgboost model to predict employee departure. 
+the given dataset. 
+
+### XGboost Model
+```{r, warning = F, messages = F, results=T}
+### Data Split
+set.seed(2022)
+df_split <- initial_split(
+  df, 
+  prop = 0.2, 
+  strata = left
+)
+
+#Data Preprocessing
+xgboost_recipe <- 
+  recipe(formula = left ~ ., data = training(df_split)) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  # step_zv removes variables that contain only a single value
+  step_zv(all_predictors())
+
+#model specification
+xgboost_spec <- 
+  boost_tree(trees = 100) %>% 
+  set_mode("classification") %>% 
+  set_engine("xgboost") 
+
+#model workflow
+xgboost_workflow <- 
+  workflow() %>% 
+  add_recipe(xgboost_recipe) %>% 
+  add_model(xgboost_spec)
+
+#fit model
+xgb_fit <- xgboost_workflow %>% 
+  fit(training(df_split))
+
+
+#Predicted results on test data
+pred_class <- predict(xgb_fit, 
+                     testing(df_split),
+                     type = "class")
+
+pred_results <- testing(df_split) %>% 
+  select(left) %>% 
+  bind_cols(pred_class) %>% 
+  mutate_at(vars(left), as.factor)
+  
+#model accuracy
+accuracy(pred_results,
+          truth = left,
+          estimate = .pred_class)
+```
+```{r, warning = F, messages = F, results=T}
+#variables importance
+xgb_fit %>% 
+  pull_workflow_fit() %>%
+  vip(geom = "col")
+```
+
+The model accuracy on the test dataset is about 85.3% which is good, the variables average hours per month, job satisfaction and review were shown to be the most important in the model.
+
+# Recommendations
+Working hours appears to be the most important factor in employee departure. The organization should try to reduce the number of hours spent by an employee especially those working in departments with high turnover rate such as IT department. Most staffs leaving have a good working record with the organization, to encourage staffs staying, the management needs to increase their pay and offer promotion to them when due as a reward for their hard-work. These conditions if met is likely to increase  employees job satisfaction, this will help to curb the high rate of employee turnover.
