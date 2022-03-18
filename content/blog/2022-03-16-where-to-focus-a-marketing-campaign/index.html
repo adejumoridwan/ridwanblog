@@ -1,0 +1,258 @@
+---
+title: Where to focus a marketing campaign?
+author: Adejumo Ridwan Suleiman
+date: '2022-03-16'
+slug: []
+categories:
+  - Data Analysis
+tags:
+  - data analysis
+  - R
+  - data visualization
+  - data storytelling
+  - business analytics
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="background" class="section level2">
+<h2>📖 Background</h2>
+<p>A crowdfunding site wants to run a marketing campaign for the next quarter of the year. The marketing manager wants to target those segments that have donated the most in the past year.</p>
+</div>
+<div id="objectives" class="section level2">
+<h2>Objectives</h2>
+<ol style="list-style-type: decimal">
+<li>What are the top three categories in terms of total donations?</li>
+<li>What device type has historically provided the most contributions?</li>
+<li>What age bracket should the campaign target?</li>
+</ol>
+</div>
+<div id="key-insights" class="section level2">
+<h2>Key Insights</h2>
+<ul>
+<li>The average donation was <code>$39.4</code>dollars with the lowest and highest donations being <code>$1</code> and <code>$101</code> respectively.</li>
+<li>Gaming, marketing and fashion category have contributed most in the past year with total donations amounting to <code>$165,483</code>, <code>$162,386</code> and <code>$159,952</code> respectively.</li>
+<li>More donations were made from ios platforms with a high percentage of <code>65%</code>.</li>
+<li>Half of the donations made in the past year came from teenagers and adolescents within the age group <code>18-24</code>.</li>
+</ul>
+</div>
+<div id="recommendations" class="section level2">
+<h2>Recommendations</h2>
+<ul>
+<li>Since the majority of donors fall in the age group 18-24 and are mostly known for the age group to be mostly online. The marketing manager should target this age group and also users on the ios platforms.<br />
+</li>
+<li>Though gaming, marketing and fashion have the highest amount of donations, the difference is not that much with other categories and I will advise the marketing manager to target all categories.</li>
+</ul>
+</div>
+<div id="data" class="section level2">
+<h2>💾 Data</h2>
+<div id="variables" class="section level3">
+<h3>Variables</h3>
+<ul>
+<li><code>category</code> - “Sports”, “Fashion”, “Technology”, etc.</li>
+<li><code>device</code> - the type of device used.</li>
+<li><code>gender</code> - gender of the user.</li>
+<li><code>age range</code> - one of five age brackets.</li>
+<li><code>amount</code> - how much the user donated in Euros.</li>
+</ul>
+</div>
+<div id="data-summary" class="section level3">
+<h3>Data Summary</h3>
+<pre class="r"><code>library(tidyverse)
+data &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/crowdfunding.csv&quot;)
+
+skimr::skim(data)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-1">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">data</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">20658</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">5</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">4</td>
+</tr>
+<tr class="odd">
+<td align="left">numeric</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">category</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">11</td>
+<td align="right">0</td>
+<td align="right">5</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">device</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">gender</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">age</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">0</td>
+<td align="right">5</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">amount</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">39.41</td>
+<td align="right">14.91</td>
+<td align="right">1</td>
+<td align="right">29</td>
+<td align="right">39</td>
+<td align="right">50</td>
+<td align="right">101</td>
+<td align="left">▂▇▇▁▁</td>
+</tr>
+</tbody>
+</table>
+<p>The amount of donation is normally distributed with mean of <code>$39.4</code>, the minimum and maximum donation respectively are <code>$1</code> and <code>$100</code> respectively.</p>
+</div>
+<div id="top-categories-in-terms-of-total-donations" class="section level3">
+<h3>Top categories in terms of total donations</h3>
+<pre class="r"><code>data %&gt;% 
+  group_by(category) %&gt;% 
+  summarize(total_price = sum(amount)) %&gt;% 
+  ggplot(aes(x = reorder(category, total_price),
+         y = total_price, fill = category)) +
+  geom_col() +
+  geom_text(aes(label = scales::comma(total_price)), hjust = 1) +
+  coord_flip() +
+  xlab(&quot;Category&quot;) +
+  ylab(&quot;Total Price&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+The top three categories in terms of total donations is games, environment and fashion.</p>
+</div>
+<div id="device-type-with-the-most-contributions" class="section level3">
+<h3>Device type with the most contributions</h3>
+<pre class="r"><code>data %&gt;% 
+  group_by(device) %&gt;% 
+  summarize(count = n()) %&gt;%
+  mutate(percent = prop.table(count)) %&gt;% 
+    ggplot(aes(x = device, y = percent, fill = device, 
+               label = scales::percent(percent))) + 
+    geom_col(position = &#39;dodge&#39;) + 
+    geom_text(position = position_dodge(width = .9),
+              vjust = -0.5,
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) +
+  xlab(&quot;Device type&quot;) +
+  ylab(&quot;Percentage of donors&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+Most donations have come from those using ios platforms which constitutes 65% of donors.</p>
+</div>
+<div id="what-age-bracket-should-the-campaign-target" class="section level3">
+<h3>What age bracket should the campaign target?</h3>
+<pre class="r"><code>data %&gt;% 
+  group_by(age) %&gt;% 
+  summarize(count = n()) %&gt;%
+  mutate(percent = prop.table(count)) %&gt;% 
+    ggplot(aes(x = reorder(age, percent), y = percent, fill = age, label = scales::percent(percent))) + 
+    geom_col(position = &#39;dodge&#39;) + 
+    geom_text(position = position_dodge(width = .9),
+              vjust = -0.5,
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) +
+  coord_flip() +
+  xlab(&quot;Age groups&quot;) +
+  ylab(&quot;Percentage of donors&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+The age group 18-24 which are teenagers and adolescents have the highest percentage of donors.</p>
+</div>
+<div id="distibution-of-donations" class="section level3">
+<h3>Distibution of donations</h3>
+<pre class="r"><code>data %&gt;%
+  ggplot(aes(x = amount)) +
+  geom_density()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+Most donations made lie between 25-50 dollars.</p>
+</div>
+</div>

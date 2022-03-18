@@ -1,0 +1,113 @@
+---
+title: Where to focus a marketing campaign?
+author: Adejumo Ridwan Suleiman
+date: '2022-03-16'
+slug: []
+categories:
+  - Data Analysis
+tags:
+  - data analysis
+  - R
+  - data visualization
+  - data storytelling
+  - business analytics
+---
+
+## 📖 Background
+A crowdfunding site wants to run a marketing campaign for the next quarter of the year. The marketing manager wants to target those segments that have donated the most in the past year. 
+
+## Objectives
+1. What are the top three categories in terms of total donations? 
+2. What device type has historically provided the most contributions? 
+3. What age bracket should the campaign target?
+
+## Key Insights
+- The average donation was `$39.4`dollars with the lowest and highest donations being `$1` and `$101` respectively. 
+- Gaming, marketing and fashion category have contributed most in the past year with total donations amounting to `$165,483`, `$162,386` and `$159,952` respectively. 
+- More donations were made from ios platforms with a high percentage of `65%`.
+- Half of the donations made in the past year came from teenagers and adolescents within the age group `18-24`.
+
+## Recommendations
+- Since the majority of donors fall in the age group 18-24 and are mostly known for the age group to be mostly online. The marketing manager should target this age group and also users on the ios platforms.  
+- Though gaming, marketing and fashion have the highest amount of donations, the difference is not that much with other categories and I will advise the marketing manager to target all categories.
+
+## 💾 Data
+
+### Variables
+- `category` - "Sports", "Fashion", "Technology", etc.
+- `device` - the type of device used.
+- `gender` - gender of the user.
+- `age range` - one of five age brackets.
+- `amount` - how much the user donated in Euros.
+
+### Data Summary
+```{r, warning=F, message=F, results=T}
+library(tidyverse)
+data <- read_csv("C:/Users/Adejumo/Downloads/crowdfunding.csv")
+
+skimr::skim(data)
+```
+The amount of donation is normally distributed with mean of `$39.4`, the minimum and maximum donation respectively are `$1` and `$100` respectively. 
+
+### Top categories in terms of total donations
+```{r, warning=F, message=F, results=T}
+data %>% 
+  group_by(category) %>% 
+  summarize(total_price = sum(amount)) %>% 
+  ggplot(aes(x = reorder(category, total_price),
+         y = total_price, fill = category)) +
+  geom_col() +
+  geom_text(aes(label = scales::comma(total_price)), hjust = 1) +
+  coord_flip() +
+  xlab("Category") +
+  ylab("Total Price")
+```
+The top three categories in terms of total donations is games, environment and fashion. 
+
+### Device type with the most contributions
+```{r, warning=F, message=F, results=T}
+data %>% 
+  group_by(device) %>% 
+  summarize(count = n()) %>%
+  mutate(percent = prop.table(count)) %>% 
+    ggplot(aes(x = device, y = percent, fill = device, 
+               label = scales::percent(percent))) + 
+    geom_col(position = 'dodge') + 
+    geom_text(position = position_dodge(width = .9),
+              vjust = -0.5,
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) +
+  xlab("Device type") +
+  ylab("Percentage of donors")
+```
+Most donations have come from those using ios platforms which constitutes 65% of donors.
+
+### What age bracket should the campaign target?
+```{r}
+data %>% 
+  group_by(age) %>% 
+  summarize(count = n()) %>%
+  mutate(percent = prop.table(count)) %>% 
+    ggplot(aes(x = reorder(age, percent), y = percent, fill = age, label = scales::percent(percent))) + 
+    geom_col(position = 'dodge') + 
+    geom_text(position = position_dodge(width = .9),
+              vjust = -0.5,
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) +
+  coord_flip() +
+  xlab("Age groups") +
+  ylab("Percentage of donors")
+```
+The age group 18-24 which are teenagers and adolescents have the highest percentage of donors.
+
+### Distibution of donations
+```{r}
+data %>%
+  ggplot(aes(x = amount)) +
+  geom_density()
+```
+Most donations made lie between 25-50 dollars.
+
+
+
+
