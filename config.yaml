@@ -44,11 +44,11 @@ params:
   assets:
     # disableHLJS: true # to disable highlight.js
     # disableFingerprinting: true
-    favicon: "<link / abs url>"
-    favicon16x16: "<link / abs url>"
-    favicon32x32: "<link / abs url>"
-    apple_touch_icon: "<link / abs url>"
-    safari_pinned_tab: "<link / abs url>"
+    favicon: "https://cdn-icons-png.flaticon.com/512/3094/3094918.png"
+    favicon16x16: "https://cdn-icons-png.flaticon.com/512/3094/3094918.png"
+    favicon32x32: "https://cdn-icons-png.flaticon.com/512/3094/3094918.png"
+    apple_touch_icon: "https://cdn-icons-png.flaticon.com/512/3094/3094918.png"
+    safari_pinned_tab: "https://cdn-icons-png.flaticon.com/512/3094/3094918.png"
 
   label:
     text: "Home"
