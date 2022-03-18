@@ -59,7 +59,7 @@ params:
   profileMode:
     enabled: true # needs to be explicitly set
     title: Adejumo Ridwan Suleiman
-    subtitle: "Statistical Consultant || R Programmer"
+    subtitle: "Statistical Consultant || R Developer"
     imageUrl: "https://media-exp1.licdn.com/dms/image/C4D03AQEtiGiNfj-Jkg/profile-displayphoto-shrink_800_800/0/1582301185493?e=1652313600&v=beta&t=er5BtbpNkCrv_ze6E1dS2hWA4Iw_H5-NNygdvTXNafs"
     imageWidth: 200
     imageHeight: 200
