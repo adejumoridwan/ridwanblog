@@ -73,6 +73,8 @@ params:
         url: /projects/
       - name: CV
         url: "/file/resume_Adejumo_Ridwan_Suleiman.pdf/"
+      - name: Courses
+        url: "/courses/"
       - name: Rbloggers
         url: "https://www.r-bloggers.com/"
   # home-info mode

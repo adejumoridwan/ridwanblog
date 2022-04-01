@@ -14,7 +14,7 @@ tags:
 ---
 
 ## 📖 Background
-A crowdfunding site wants to run a marketing campaign for the next quarter of the year. The marketing manager wants to target those segments that have donated the most in the past year. 
+A crowdfunding site wants to run a marketing campaign for the next quarter of the year. The marketing manager wants to target those segments that have donated thsse most in the past year. 
 
 ## Objectives
 1. What are the top three categories in terms of total donations? 
@@ -22,7 +22,7 @@ A crowdfunding site wants to run a marketing campaign for the next quarter of th
 3. What age bracket should the campaign target?
 
 ## Key Insights
-- The average donation was `$39.4`dollars with the lowest and highest donations being `$1` and `$101` respectively. 
+- The average donation was `$39.4` with the lowest and highest donations being `$1` and `$101` respectively. 
 - Gaming, marketing and fashion category have contributed most in the past year with total donations amounting to `$165,483`, `$162,386` and `$159,952` respectively. 
 - More donations were made from ios platforms with a high percentage of `65%`.
 - Half of the donations made in the past year came from teenagers and adolescents within the age group `18-24`.
