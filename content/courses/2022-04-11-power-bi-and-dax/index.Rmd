@@ -1,0 +1,23 @@
+---
+title: Power BI and DAX
+author: Adejumo Ridwan Suleiman
+date: '2022-04-11'
+slug: []
+categories:
+  - business analysis
+  - data visualization
+  - Data Analysis
+  - power bi
+tags: []
+---
+
+### Who is this course for:
+- Those who want to start a career in the field of data analytics.
+- Those who have basic backgrounds in excel and want to broaden their knowledge.
+
+### Course Outcome:
+- Trainees at the end of this course should be able to leverage the capabilities of Power BI and build visually impressive and insightful visualizations.
+- Trainees should be able to use DAX to calculate new insights from datasets.
+
+### Course OUtline:
+

@@ -59,20 +59,20 @@ params:
   profileMode:
     enabled: true # needs to be explicitly set
     title: Adejumo Ridwan Suleiman
-    subtitle: "Statistical Consultant || R Developer"
+    subtitle: "Data Analytics Consultant || Statistician"
     imageUrl: "https://media-exp1.licdn.com/dms/image/C4D03AQEtiGiNfj-Jkg/profile-displayphoto-shrink_800_800/0/1582301185493?e=1652313600&v=beta&t=er5BtbpNkCrv_ze6E1dS2hWA4Iw_H5-NNygdvTXNafs"
     imageWidth: 200
     imageHeight: 200
     imageTitle: my image
     buttons:
-      - name: About
+      - name: Abouts
         url: /about/
       - name: Blog
         url: /blog/
       - name: Projects
         url: /projects/
-      - name: CV
-        url: "/file/resume_Adejumo_Ridwan_Suleiman.pdf/"
+      #- name: CV
+       # url: "/file/resume_Adejumo_Ridwan_Suleiman.pdf/"
       - name: Courses
         url: "/courses/"
       - name: Rbloggers
@@ -89,8 +89,8 @@ params:
       url: "https://www.linkedin.com/in/ridwan-adejumo-suleiman-03461a178/"
     - name: github
       url: "https://github.com/adejumoridwan"
-    - name: cv
-      url: "/file/resume_Adejumo_Ridwan_Suleiman.pdf"
+    #- name: cv
+      #url: "/file/resume_Adejumo_Ridwan_Suleiman.pdf"
     - name: rss
       url: "https://adejumoridwan.com/index.xml"
 

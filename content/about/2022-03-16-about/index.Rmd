@@ -10,17 +10,11 @@ tags: []
 ![](images/d.jpg){width=200px height=200px}
 
 ### Adejumo Ridwan Suleiman
-**Statistical Consultant || R Developer**
+**Data Analytics Consultant || Statistician**
 
-I am the founder of Ridwan Analytics, a statistical consulting firm that offers analysis and statistical software training for undergraduates, MSc/Ph.D. students and researchers.  
+I am the founder of Ridwan Analytics, a data analytics/consulting firm that uses data tools to solve business and data problems for organizations and individuals and also provides training services on how to use these tools.
 
-I hold a BSc in Statistics and am currently a graduate student in Statistics. I am passionate about R, crunching data and numbers, and love using statistics to solve real-life problems. I have interests in applied and mathematical statistics, data mining, data visualization, and business analytics.
-
-My research interests are in probability distribution theory and Bayesian statistics.     
-
-As an R developer, I love to post content about the usage of R in statistics and data science.
-
-When I am not coding or building advanced statistical models, I am on YouTube blowing off steam watching wildlife videos.
+At Ridwan Analytics we are concerned about providing 
 
 
 **Contact:** +234-7032-85-7263, +234-9021-13-8475  
