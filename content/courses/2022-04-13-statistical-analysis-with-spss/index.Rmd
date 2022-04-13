@@ -1,0 +1,17 @@
+---
+title: Statistical Analysis with SPSS
+author: Adejumo Ridwan Suleiman
+date: '2022-04-13'
+slug: []
+categories:
+  - statistics
+  - data analysis
+  - spss
+tags:
+  - statistics
+  - data analysis
+  - spss
+  - data science
+---
+
+### Please come back later, course curriculum is not yet available.

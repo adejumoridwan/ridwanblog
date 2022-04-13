@@ -1,0 +1,93 @@
+---
+title: Python For Data Analysis
+author: Adejumo Ridwan Suleiman
+date: '2022-04-13'
+slug: []
+categories:
+  - business analysis
+  - data visualization
+  - excel
+  - power bi
+tags:
+  - business analytics
+  - data analysis
+  - data storytelling
+  - data visualization
+---
+
+
+Python is currently the most popular programming language and this is due to the fact that it is a general purpose language, it is used in automation, web development and even in the field of data science. It has stand ground as the most popular data science tool competing with popular tools such as R and Julia. In this course, we take a look at how Python is used in data analysis.
+
+### Requirements
+- Willingness to learn 
+- Laptop 
+- Analytic and Logical reasoning.
+
+### Who is this course for:
+- Those who want to start a career in the field of data analytics.
+- Those who have little or zero programming knowledge.
+- Those who have used point and click data analysis tools such as Excel and want to explore the use of programming languages for data analysis.
+
+### Course Outcome:
+- Trainees at the end of this course should be able to read and analyze data from various sources like CSV and SQL.
+- Trainees should be able to use libraries such as Pandas, Matplotlib and Seaborn to process and visualize data.
+
+### Course Outline:
+
+#### Python Crash Course (FREE)
+- Data Types(Numbers, Strings, Lists, Dictionaries, Booleans, Tuples, Sets)
+- Comparison Operators
+- If, ElseIf, Else Statements
+- For Loops
+- While Loops
+- Range()
+- List Comprehension
+- Lambda Expressions
+- Functions
+- Map and Filter
+- Methods
+- Exercises
+
+#### Numpy
+- Numpy Array
+- Numpy Indexing and Selection
+- Numpy Operations
+- Numpy Exercises
+
+#### Pandas
+- Introduction to Pandas
+- Series
+- Data Frames
+- Missing Data
+- Group By
+- Merging, Joining and Concatenating
+- Operations
+- Data Input and Output
+
+#### Matplotlib
+- Introduction to Matplotlib Concepts
+- Exercises
+
+#### Seaborn
+- Distribution Plots
+- Categorical Plots
+- Matrix Plots
+- Grids 
+- Regression Plots
+- Style and Color 
+- EXercises
+
+#### Data Visualization with Pandas
+- Concepts
+- Exercises
+
+#### Capstone Projects
+- Case Study 1: 911 Calls
+- Case Study 2: Finance Data
+
+## 4 weeks
+## Mon-Tues: 9am-12pm
+## #20,000
+## Starting on the 9th May 2022
+## Fees covers snacks, drinks and certification
+

@@ -27,6 +27,11 @@ Excel is easy to learn, get started and also user friendly. It has maintained it
 
 In this course, we take a look at excel from a beginner's perspective to familiarize ourselves with the excel window.
 
+### Requirements
+- Willingness to learn 
+- Laptop 
+- Analytic and Logical reasoning.
+
 ### Who is this course for:
 - Those who want to start a career in the field of data analytics.
 - Those who have basic backgrounds in excel and want to broaden their knowledge.
@@ -79,4 +84,8 @@ AND, AVERAGE, AVERAGEIF, AVERAGEIFS, COUNT, COUNTA, COUNTBLANK, COUNTIF, COUNTIF
 - Case Study 1: Netflix Dataset
 - Case Study 2: Nigerian Used Car Market
 
+## 4 weeks
+## Sat: 4:30am-5:30pm
+## This course is free
+## Starting on the 14th May 2022
 

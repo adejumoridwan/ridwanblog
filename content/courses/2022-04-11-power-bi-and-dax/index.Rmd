@@ -11,9 +11,16 @@ categories:
 tags: []
 ---
 
+Power BI is a new business intelligence tool released by Microsoft in 2014 to compete with industry standards such as Tableu and Qlik. Power BI is used to create visually impressive and insightful dashboards and reports from data. It is the most used BI tool in Nigeria.
+
+### Requirements
+- Willingness to learn 
+- Laptop 
+- Analytic and Logical reasoning.
+
 ### Who is this course for:
 - Those who want to start a career in the field of data analytics.
-- Those who have basic backgrounds in excel and want to broaden their knowledge.
+- Those who have basic backgrounds in BI tools such as Excel and want to broaden their knowledge.
 
 ### Course Outcome:
 - Trainees at the end of this course should be able to leverage the capabilities of Power BI and build visually impressive and insightful visualizations.
@@ -21,3 +28,45 @@ tags: []
 
 ### Course OUtline:
 
+#### Introduction to DAX Modelling
+- What is DAX Modelling
+- Installing Power BI desktop
+
+#### Loading Data 
+
+- Loading Data from a new source
+- Joining tables in Power BI Desktop
+- Shaping Data 
+- Choosing a Schema 
+- Lookup Tables and Data Tables
+- Making Changes to a loaded table
+- Deleting Steps in a query
+- Making changes in a query
+- Importing new tables 
+- Inserting a matrix
+
+#### Data Visualizations
+- Visualization Plot
+- Scatter Plot
+- Bar Plot
+- Line Chat
+
+#### Measures
+- Techniques for writing DAX measures
+- Avoiding Implicit Measures
+- Using Intellisense
+- Editing Measure
+- Adding comments to measures
+
+#### DAX Formulars: 
+SUM, COUNT, COUNTROWS, MIN, MAX, COUNTBLANK, DIVIDE, SUMX, AVERAGEX AND CALCULATE
+
+## Capstone Projects:
+- Case Study 1: Adventure Sales Data
+- Case Study 2: Tokyo 2020 Summer Olympics
+
+## 4 weeks
+## Saturday: 9am-12pm
+## #15,000
+## Starting on the 9th May 2022
+## Fees covers snacks, drinks and certification
