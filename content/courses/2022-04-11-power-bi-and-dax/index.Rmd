@@ -68,5 +68,5 @@ SUM, COUNT, COUNTROWS, MIN, MAX, COUNTBLANK, DIVIDE, SUMX, AVERAGEX AND CALCULAT
 ## 4 weeks
 ## Saturday: 9am-12pm
 ## #15,000
-## Starting on the 9th May 2022
+## Starting on the 14th May 2022
 ## Fees covers snacks, drinks and certification
