@@ -1,0 +1,24 @@
+---
+title: Data Science with R
+author: Adejumo Ridwan Suleiman
+date: '2022-04-15'
+slug: []
+categories:
+  - data analysis
+  - Data Science
+  - data visualization
+  - Machine Learning
+  - statistics
+  - rstats
+tags:
+  - business analytics
+  - data analysis
+  - data science
+  - data storytelling
+  - data visualization
+  - machine learning
+  - Programming
+  - rstats
+---
+
+#### Course content is currently not availabe, please check back later.

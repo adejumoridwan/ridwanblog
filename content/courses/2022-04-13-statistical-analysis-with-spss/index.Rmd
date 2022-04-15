@@ -14,4 +14,74 @@ tags:
   - data science
 ---
 
-### Please come back later, course curriculum is not yet available.
+SPSS, formerly known as Statistical Package for Social Science is one of the most popular statistical software and this is due to the fact that it easy to use and has a very user friendly interface due to its point and click interface. In thsi course we take a look at how we can apply some key fundamental statistical principles in analysis our data in SPSS. 
+
+### Requirements
+- Willingness to learn 
+- Laptop 
+- Analytic and Logical reasoning.
+
+### Who is this course for:
+- NGO workers
+- Biostatisticians
+- Public Health Analysts
+- Epidemiologists
+- Undergraduates and Postgraduates
+
+### Course Outcome:
+- Trainees should also be able to explain statistical concepts explained in this course.
+- Trainees at the end of the course should be able to use SPSS to analyze data in their respective domain fields.
+
+### Course Outline:
+
+#### Introduction to SPSS
+- SPSS Installation
+
+#### Statistics
+- Descriptive and Inferential Statistics
+- Parametric and Non-Parametric Statistics
+
+#### Data Entry in SPSS
+- SPSS Data view
+- SPSS variable view
+
+#### Data Transformation
+- Computing variable function
+- Recoding
+- Recoding into a different variable
+- Recoding into same variable
+
+#### Descriptive Statistics in SPSS
+- Concept of descriptive statistics
+- Types of descriptive statistics
+
+#### Inferential Statistics in SPSS
+- Independent Sample T-test
+- Paired Sample T-test
+- One-Way ANOVA
+- Linear Regression
+- Multiple Regression
+- Chi-Squred test
+
+#### Reliability Analysis
+- Concept of Reliabiliy Analysis
+- Types of Relibaliliy Analysis
+- Internal Consistency Reliablity
+- Cronbach's Alpha 
+- Cronbach's Alpha Assumptions
+
+## 4 weeks
+## #15,000
+
+
+#### Paired Sample T-test
+- 
+
+#### Capstone Projects
+- Case Study 1: 911 Calls
+- Case Study 2: Finance Data
+
+## 4 weeks
+## #15,000
+
+

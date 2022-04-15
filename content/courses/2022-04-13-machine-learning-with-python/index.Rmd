@@ -16,7 +16,41 @@ tags:
 ---
 
 
-### Please come back later, course curriculum is not yet available.
+Machine Learning is the study of computer algorithms to predictions from data without the computer being explicitly programmed to do so. In this course we take a look at the concepts and implementation of various machine learning algorithms in Python.
+
+### Requirements
+- Knowledge of python libraies such as Pandas, Matplotlib and Seaborn
+- Fundamental knowledge of mathematics and statistics
+- Laptop 
+- Analytic and Logical reasoning.
+
+### Who is this course for:
+Those who have undergone my Python for Data Analysis track and want to go deeper into machine learning.
+
+### Course Outcome:
+- Trainees at the end of the course should be able to use machine learning and deep learning algorithms to make decisions from both structured and unstructured data.
+
+### Course Outline:
+
+#### Linear Regression
+#### Logistic Regression
+#### K-Nearest Neighbours
+#### Decision Trees and Random Forests
+#### Support vector Machines
+#### K-Means Clustering
+#### Principal Component Analysis
+#### Recommender Systems
+#### Natural Language Processing
+#### Big Data and Spark
+#### Deep Learning
+#### Introduction to SciPy
+#### Capstone Project
+- Case Study: Titanic Dataset
+
+## 4 weeks
+## #30,000
+
+
 
 
 

@@ -66,7 +66,6 @@ SUM, COUNT, COUNTROWS, MIN, MAX, COUNTBLANK, DIVIDE, SUMX, AVERAGEX AND CALCULAT
 - Case Study 2: Tokyo 2020 Summer Olympics
 
 ## 4 weeks
-## Saturday: 9am-12pm
+## Starting June 11th, 2022
+## Saturday: 9:00AM-12:00PM
 ## #15,000
-## Starting on the 14th May 2022
-## Fees covers snacks, drinks and certification
