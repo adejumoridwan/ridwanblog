@@ -81,7 +81,7 @@ In this course, we take a look at excel from a beginner's perspective to familia
 AND, AVERAGE, AVERAGEIF, AVERAGEIFS, COUNT, COUNTA, COUNTBLANK, COUNTIF, COUNTIFS, IF, IFS, MAX, MEDIAN, MIN, MODE, OR, STDEV.P, STDEV.S, SUM, SUMIF, SUMIFS, VLOOKUP, XOR
 
 #### Excel Capstone Project
-- Case Study 1: Netflix Dataset
+- Case Study 1: Student Performance Dataset
 - Case Study 2: Nigerian Used Car Market
 
 ## 4 weeks
