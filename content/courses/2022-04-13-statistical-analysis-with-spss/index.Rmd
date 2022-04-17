@@ -74,14 +74,3 @@ SPSS, formerly known as Statistical Package for Social Science is one of the mos
 ## #15,000
 
 
-#### Paired Sample T-test
-- 
-
-#### Capstone Projects
-- Case Study 1: 911 Calls
-- Case Study 2: Finance Data
-
-## 4 weeks
-## #15,000
-
-
