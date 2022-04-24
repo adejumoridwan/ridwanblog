@@ -52,34 +52,11 @@ tags:
 <li>“reading” - exam score in reading</li>
 <li>“writing” - exam score in writing</li>
 </ul>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.1.2</code></pre>
-<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
-<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
-## v tibble  3.1.5     v dplyr   1.0.7
-## v tidyr   1.1.4     v stringr 1.4.0
-## v readr   2.0.2     v forcats 0.5.1</code></pre>
-<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 4.1.1</code></pre>
-<pre><code>## Warning: package &#39;tibble&#39; was built under R version 4.1.1</code></pre>
-<pre><code>## Warning: package &#39;tidyr&#39; was built under R version 4.1.1</code></pre>
-<pre><code>## Warning: package &#39;readr&#39; was built under R version 4.1.1</code></pre>
-<pre><code>## Warning: package &#39;purrr&#39; was built under R version 4.1.1</code></pre>
-<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.1.1</code></pre>
-<pre><code>## Warning: package &#39;stringr&#39; was built under R version 4.1.1</code></pre>
-<pre><code>## Warning: package &#39;forcats&#39; was built under R version 4.1.1</code></pre>
-<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>data &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/exams.csv&quot;)</code></pre>
-<pre><code>## Rows: 1000 Columns: 8</code></pre>
-<pre><code>## -- Column specification --------------------------------------------------------
-## Delimiter: &quot;,&quot;
-## chr (5): gender, race/ethnicity, parent_education_level, lunch, test_prep_co...
-## dbl (3): math, reading, writing</code></pre>
-<pre><code>## 
-## i Use `spec()` to retrieve the full column specification for this data.
-## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>head(data)</code></pre>
+<pre class="r"><code>library(tidyverse)
+
+data &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/exams.csv&quot;)
+
+head(data)</code></pre>
 <pre><code>## # A tibble: 6 x 8
 ##   gender `race/ethnicity` parent_education~ lunch test_prep_course  math reading
 ##   &lt;chr&gt;  &lt;chr&gt;            &lt;chr&gt;             &lt;chr&gt; &lt;chr&gt;            &lt;dbl&gt;   &lt;dbl&gt;
@@ -330,14 +307,15 @@ Children of parents who have achieved a higher level of education recorded a hig
   group_by(test_prep_course, parent_education_level) %&gt;% 
   summarize(Mathematics = round(mean(math),1),
             Reading = round(mean(reading),1),
-            Writing = round(mean(writing),1)) %&gt;% 
+            Writing = round(mean(writing),1),
+            .groups = ) %&gt;% 
   ggplot(aes(test_prep_course, Mathematics, colour = test_prep_course)) +
   geom_boxplot() +
   facet_wrap(vars(parent_education_level)) +
   xlab(&quot;Test Peparation Course&quot;) +
   ylab(&quot;Mathematics Test Score&quot;) +
-  ggtitle(&quot;Mathematics&quot;)</code></pre>
-<pre><code>## `summarise()` has grouped output by &#39;test_prep_course&#39;. You can override using the `.groups` argument.</code></pre>
+  ggtitle(&quot;Mathematics&quot;) +
+  labs(colour = &quot;Test Preparation Course&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" />
 #### Reading</p>
 <pre class="r"><code>data %&gt;% 
@@ -350,8 +328,8 @@ Children of parents who have achieved a higher level of education recorded a hig
   facet_wrap(vars(parent_education_level)) +
   xlab(&quot;Test Peparation Course&quot;) +
   ylab(&quot;Reading Test Score&quot;) +
-  ggtitle(&quot;Reading&quot;)</code></pre>
-<pre><code>## `summarise()` has grouped output by &#39;test_prep_course&#39;. You can override using the `.groups` argument.</code></pre>
+  ggtitle(&quot;Reading&quot;) +
+  labs(colour = &quot;Test Preparation Course&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 #### Writing</p>
 <pre class="r"><code>data %&gt;% 
@@ -364,8 +342,8 @@ Children of parents who have achieved a higher level of education recorded a hig
   facet_wrap(vars(parent_education_level)) +
   xlab(&quot;Test Peparation Course&quot;) +
   ylab(&quot;Writing Test Score&quot;) +
-  ggtitle(&quot;Writing&quot;)</code></pre>
-<pre><code>## `summarise()` has grouped output by &#39;test_prep_course&#39;. You can override using the `.groups` argument.</code></pre>
+  ggtitle(&quot;Writing&quot;) +
+  labs(colour = &quot;Test Preparation Course&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
 Students of Parents who have attained high education level performed better than those with lower education level regardless whether they took the test preparation test or not.</p>
 </div>
@@ -382,4 +360,5 @@ There is a highly positive correlation between the test scores especially in rea
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
+<p>From the above analysis, we can conclude that the test preparation course have a significant effect on student performance and also children of parents with higher educational qualifications regardless of taking the test preparation course or not displayed higher scores than those whose parents have lower educational qualifications.</p>
 </div>

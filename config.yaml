@@ -60,9 +60,9 @@ params:
     enabled: true # needs to be explicitly set
     title: Adejumo Ridwan Suleiman
     subtitle: "Data Analytics Consultant || Statistician"
-    imageUrl: "https://media-exp1.licdn.com/dms/image/C4D03AQEtiGiNfj-Jkg/profile-displayphoto-shrink_800_800/0/1582301185493?e=1652313600&v=beta&t=er5BtbpNkCrv_ze6E1dS2hWA4Iw_H5-NNygdvTXNafs"
-    imageWidth: 200
-    imageHeight: 200
+    imageUrl: "https://www.adejumoridwan.com/about/about-me/images/d.jpg"
+    imageWidth: 250
+    imageHeight: 250
     imageTitle: my image
     buttons:
       - name: Abouts
