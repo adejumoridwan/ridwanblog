@@ -1,0 +1,385 @@
+---
+title: Analyzing exam scores
+author: Adejumo Ridwan Suleiman
+date: '2022-04-20'
+slug: []
+categories:
+  - business analysis
+  - Data Analysis
+  - Data Science
+  - data visualization
+  - rstats
+  - statistics
+tags:
+  - business analytics
+  - data analysis
+  - data science
+  - data storytelling
+  - data visualization
+  - R
+  - rstats
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="background" class="section level2">
+<h2>📖 Background</h2>
+<p>The principal of a large school is interested in knowing if the test preparation courses are helpful and also know the effect of parental education level on test scores.</p>
+</div>
+<div id="objectives" class="section level2">
+<h2>💪Objectives</h2>
+<ol style="list-style-type: decimal">
+<li>What are the average reading scores for students with/without the test preparation course?</li>
+<li>What are the average scores for the different parental education levels?</li>
+<li>Create plots to visualize findings for questions 1 and 2.</li>
+<li>Look at the effects within subgroups. Compare the average scores for students with/without the test preparation course for different parental education levels (e.g., faceted plots).</li>
+<li>The principal wants to know if kids who perform well on one subject also score well on the others. Look at the correlations between scores.</li>
+<li>Summarize the findings.</li>
+</ol>
+</div>
+<div id="the-data" class="section level2">
+<h2>💾 The data</h2>
+<div id="the-data-has-the-following-fields" class="section level4">
+<h4>The data has the following fields:</h4>
+<ul>
+<li>“gender” - male / female</li>
+<li>“race/ethnicity” - one of 5 combinations of race/ethnicity</li>
+<li>“parent_education_level” - highest education level of either parent</li>
+<li>“lunch” - whether the student receives free/reduced or standard lunch</li>
+<li>“test_prep_course” - whether the student took the test preparation course</li>
+<li>“math” - exam score in math</li>
+<li>“reading” - exam score in reading</li>
+<li>“writing” - exam score in writing</li>
+</ul>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.1.2</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.5     v dplyr   1.0.7
+## v tidyr   1.1.4     v stringr 1.4.0
+## v readr   2.0.2     v forcats 0.5.1</code></pre>
+<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 4.1.1</code></pre>
+<pre><code>## Warning: package &#39;tibble&#39; was built under R version 4.1.1</code></pre>
+<pre><code>## Warning: package &#39;tidyr&#39; was built under R version 4.1.1</code></pre>
+<pre><code>## Warning: package &#39;readr&#39; was built under R version 4.1.1</code></pre>
+<pre><code>## Warning: package &#39;purrr&#39; was built under R version 4.1.1</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.1.1</code></pre>
+<pre><code>## Warning: package &#39;stringr&#39; was built under R version 4.1.1</code></pre>
+<pre><code>## Warning: package &#39;forcats&#39; was built under R version 4.1.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>data &lt;- read_csv(&quot;C:/Users/Adejumo/Downloads/exams.csv&quot;)</code></pre>
+<pre><code>## Rows: 1000 Columns: 8</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (5): gender, race/ethnicity, parent_education_level, lunch, test_prep_co...
+## dbl (3): math, reading, writing</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>head(data)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+##   gender `race/ethnicity` parent_education~ lunch test_prep_course  math reading
+##   &lt;chr&gt;  &lt;chr&gt;            &lt;chr&gt;             &lt;chr&gt; &lt;chr&gt;            &lt;dbl&gt;   &lt;dbl&gt;
+## 1 female group B          bachelor&#39;s degree stan~ none                72      72
+## 2 female group C          some college      stan~ completed           69      90
+## 3 female group B          master&#39;s degree   stan~ none                90      95
+## 4 male   group A          associate&#39;s degr~ free~ none                47      57
+## 5 male   group C          some college      stan~ none                76      78
+## 6 female group B          associate&#39;s degr~ stan~ none                71      83
+## # ... with 1 more variable: writing &lt;dbl&gt;</code></pre>
+<pre class="r"><code>skimr::skim(data)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-2">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">data</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">1000</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">8</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">5</td>
+</tr>
+<tr class="odd">
+<td align="left">numeric</td>
+<td align="left">3</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">gender</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">race/ethnicity</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">5</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">parent_education_level</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">18</td>
+<td align="right">0</td>
+<td align="right">6</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">lunch</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">8</td>
+<td align="right">12</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">test_prep_course</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">9</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">math</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">66.09</td>
+<td align="right">15.16</td>
+<td align="right">0</td>
+<td align="right">57.00</td>
+<td align="right">66</td>
+<td align="right">77</td>
+<td align="right">100</td>
+<td align="left">▁▁▅▇▃</td>
+</tr>
+<tr class="even">
+<td align="left">reading</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">69.17</td>
+<td align="right">14.60</td>
+<td align="right">17</td>
+<td align="right">59.00</td>
+<td align="right">70</td>
+<td align="right">79</td>
+<td align="right">100</td>
+<td align="left">▁▂▆▇▃</td>
+</tr>
+<tr class="odd">
+<td align="left">writing</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">68.05</td>
+<td align="right">15.20</td>
+<td align="right">10</td>
+<td align="right">57.75</td>
+<td align="right">69</td>
+<td align="right">79</td>
+<td align="right">100</td>
+<td align="left">▁▂▅▇▃</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="exploratory-data-analysis" class="section level2">
+<h2>Exploratory Data Analysis</h2>
+<div id="average-reading-scores-for-students-withwithout-the-test-preparation-course" class="section level3">
+<h3>Average reading scores for students with/without the test preparation course</h3>
+<div id="students-who-took-the-test-preparation-course" class="section level4">
+<h4>Students who took the test preparation course</h4>
+<pre class="r"><code>mean_reading_tpc &lt;- data %&gt;% 
+  filter(test_prep_course == &quot;completed&quot;) %&gt;% 
+  summarise(mean(reading)) %&gt;% 
+  as_vector()
+
+data %&gt;% 
+  filter(test_prep_course == &quot;completed&quot;) %&gt;% 
+  ggplot(aes(x = reading)) +
+  geom_density(fill = &quot;skyblue&quot;,
+               alpha = 0.5) +
+  geom_vline(xintercept = mean_reading_tpc, size = 0.5, color = &quot;red&quot;) +
+  annotate(x = mean_reading_tpc, y = +Inf, label = round(mean_reading_tpc, 2), vjust = 2, geom = &quot;label&quot;) +
+  xlab(&quot;Students exam scores&quot;) +
+  ggtitle(&quot;Average scores of students who took the test preparation course&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="students-who-did-not-take-the-test-preparation-course" class="section level4">
+<h4>Students who did not take the test preparation course</h4>
+<pre class="r"><code>mean_reading &lt;- data %&gt;% 
+  filter(test_prep_course == &quot;none&quot;) %&gt;% 
+  summarise(mean(reading)) %&gt;% 
+  as_vector()
+
+data %&gt;% 
+  filter(test_prep_course == &quot;none&quot;) %&gt;% 
+  ggplot(aes(x = reading)) +
+  geom_density(fill = &quot;pink&quot;,
+               alpha = 0.5) +
+  geom_vline(xintercept = mean_reading, size = 0.5, color = &quot;red&quot;) +
+  annotate(x = mean_reading, y = +Inf, label = round(mean_reading, 2), vjust = 2, geom = &quot;label&quot;)+
+  xlab(&quot;Students exam scores&quot;) +
+  ggtitle(&quot;Average scores of students who did not take the test preparation course&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+The average score of students who took the test preparation course is higher with an average of 73.89 and the normal plot showing that majority of the students scored above average.</p>
+</div>
+</div>
+<div id="average-scores-on-the-different-parental-educational-levels" class="section level3">
+<h3>Average scores on the different parental educational levels</h3>
+<pre class="r"><code>data %&gt;% 
+  group_by(parent_education_level) %&gt;% 
+  summarize(Mathematics = round(mean(math),1),
+            Reading = round(mean(reading),1),
+            Writing = round(mean(writing),1)) %&gt;% 
+  pivot_longer(cols = c( &quot;Mathematics&quot;, &quot;Reading&quot;, &quot;Writing&quot;), 
+               names_to = c(&quot;subject&quot;),
+               values_to = &quot;scores&quot;) %&gt;% 
+  ggplot(aes(subject, parent_education_level)) +
+  geom_tile(aes(fill = scores), colour = &quot;white&quot;) +
+  scale_fill_gradient(low = &quot;white&quot;, high = &quot;steelblue&quot;)+
+  geom_text(aes(label = scores)) +
+  theme(legend.position = &quot;none&quot;) +
+  xlab(&quot;Average scores in each Subject&quot;) +
+  ylab(&quot;Parent Level of Education&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+Children of parents who have achieved a higher level of education recorded a higher test score.</p>
+</div>
+<div id="average-scores-for-students-withwithout-the-test-preparation-course-for-different-parental-education-level" class="section level3">
+<h3>Average scores for students with/without the test preparation course for different parental education level</h3>
+<div id="mathematics" class="section level4">
+<h4>Mathematics</h4>
+<pre class="r"><code>data %&gt;% 
+  group_by(test_prep_course, parent_education_level) %&gt;% 
+  summarize(Mathematics = round(mean(math),1),
+            Reading = round(mean(reading),1),
+            Writing = round(mean(writing),1)) %&gt;% 
+  ggplot(aes(test_prep_course, Mathematics, colour = test_prep_course)) +
+  geom_boxplot() +
+  facet_wrap(vars(parent_education_level)) +
+  xlab(&quot;Test Peparation Course&quot;) +
+  ylab(&quot;Mathematics Test Score&quot;) +
+  ggtitle(&quot;Mathematics&quot;)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;test_prep_course&#39;. You can override using the `.groups` argument.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+#### Reading</p>
+<pre class="r"><code>data %&gt;% 
+  group_by(test_prep_course, parent_education_level) %&gt;% 
+  summarize(Mathematics = round(mean(math),1),
+            Reading = round(mean(reading),1),
+            Writing = round(mean(writing),1)) %&gt;% 
+  ggplot(aes(test_prep_course, Reading, colour = test_prep_course)) +
+  geom_boxplot() +
+  facet_wrap(vars(parent_education_level)) +
+  xlab(&quot;Test Peparation Course&quot;) +
+  ylab(&quot;Reading Test Score&quot;) +
+  ggtitle(&quot;Reading&quot;)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;test_prep_course&#39;. You can override using the `.groups` argument.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+#### Writing</p>
+<pre class="r"><code>data %&gt;% 
+  group_by(test_prep_course, parent_education_level) %&gt;% 
+  summarize(Mathematics = round(mean(math),1),
+            Reading = round(mean(reading),1),
+            Writing = round(mean(writing),1)) %&gt;% 
+  ggplot(aes(test_prep_course, Writing, colour = test_prep_course)) +
+  geom_boxplot() +
+  facet_wrap(vars(parent_education_level)) +
+  xlab(&quot;Test Peparation Course&quot;) +
+  ylab(&quot;Writing Test Score&quot;) +
+  ggtitle(&quot;Writing&quot;)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;test_prep_course&#39;. You can override using the `.groups` argument.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+Students of Parents who have attained high education level performed better than those with lower education level regardless whether they took the test preparation test or not.</p>
+</div>
+</div>
+<div id="relationship-between-students-test-scores" class="section level3">
+<h3>Relationship between students test scores</h3>
+<pre class="r"><code>data %&gt;% 
+  select(math, reading, writing) %&gt;% 
+  cor() %&gt;% 
+  corrplot::corrplot(method = &quot;number&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+There is a highly positive correlation between the test scores especially in reading and writing. Students who perform well in one of the subjects is likely to perform better in the rest.</p>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+</div>

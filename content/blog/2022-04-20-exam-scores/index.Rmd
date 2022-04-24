@@ -1,0 +1,180 @@
+---
+title: Analyzing exam scores
+author: Adejumo Ridwan Suleiman
+date: '2022-04-20'
+slug: []
+categories:
+  - business analysis
+  - Data Analysis
+  - Data Science
+  - data visualization
+  - rstats
+  - statistics
+tags:
+  - business analytics
+  - data analysis
+  - data science
+  - data storytelling
+  - data visualization
+  - R
+  - rstats
+---
+
+## 📖 Background
+The principal of a large school is interested in knowing if the test preparation courses are helpful and also know the effect of parental education level on test scores.
+
+## 💪Objectives
+1. What are the average reading scores for students with/without the test preparation course?
+2. What are the average scores for the different parental education levels?
+3. Create plots to visualize findings for questions 1 and 2.
+4. Look at the effects within subgroups. Compare the average scores for students with/without the test preparation course for different parental education levels (e.g., faceted plots).
+5. The principal wants to know if kids who perform well on one subject also score well on the others. Look at the correlations between scores. 
+6. Summarize the findings.
+
+## 💾 The data
+
+#### The data has the following fields:
+- "gender" - male / female
+- "race/ethnicity" - one of 5 combinations of race/ethnicity
+- "parent_education_level" -  highest education level of either parent
+- "lunch" - whether the student receives free/reduced or standard lunch
+- "test_prep_course" - whether the student took the test preparation course
+- "math" -  exam score in math 
+- "reading" -  exam score in reading 
+- "writing" -  exam score in writing
+
+```{r, warning = F, message=F}
+library(tidyverse)
+
+data <- read_csv("C:/Users/Adejumo/Downloads/exams.csv")
+
+head(data)
+```
+```{r, warning = F, message=F}
+skimr::skim(data)
+```
+
+## Exploratory Data Analysis
+
+### Average reading scores for students with/without the test preparation course
+
+#### Students who took the test preparation course
+```{r,warning = F, message=F}
+mean_reading_tpc <- data %>% 
+  filter(test_prep_course == "completed") %>% 
+  summarise(mean(reading)) %>% 
+  as_vector()
+
+data %>% 
+  filter(test_prep_course == "completed") %>% 
+  ggplot(aes(x = reading)) +
+  geom_density(fill = "skyblue",
+               alpha = 0.5) +
+  geom_vline(xintercept = mean_reading_tpc, size = 0.5, color = "red") +
+  annotate(x = mean_reading_tpc, y = +Inf, label = round(mean_reading_tpc, 2), vjust = 2, geom = "label") +
+  xlab("Students exam scores") +
+  ggtitle("Average scores of students who took the test preparation course")
+```
+
+#### Students who did not take the test preparation course
+```{r,warning = F, message=F}
+mean_reading <- data %>% 
+  filter(test_prep_course == "none") %>% 
+  summarise(mean(reading)) %>% 
+  as_vector()
+
+data %>% 
+  filter(test_prep_course == "none") %>% 
+  ggplot(aes(x = reading)) +
+  geom_density(fill = "pink",
+               alpha = 0.5) +
+  geom_vline(xintercept = mean_reading, size = 0.5, color = "red") +
+  annotate(x = mean_reading, y = +Inf, label = round(mean_reading, 2), vjust = 2, geom = "label")+
+  xlab("Students exam scores") +
+  ggtitle("Average scores of students who did not take the test preparation course")
+```
+The average score of students who took the test preparation course is higher with an average of 73.89 and the normal plot showing that majority of the students scored above average.
+
+### Average scores on the different parental educational levels
+```{r,warning = F, message=F}
+data %>% 
+  group_by(parent_education_level) %>% 
+  summarize(Mathematics = round(mean(math),1),
+            Reading = round(mean(reading),1),
+            Writing = round(mean(writing),1)) %>% 
+  pivot_longer(cols = c( "Mathematics", "Reading", "Writing"), 
+               names_to = c("subject"),
+               values_to = "scores") %>% 
+  ggplot(aes(subject, parent_education_level)) +
+  geom_tile(aes(fill = scores), colour = "white") +
+  scale_fill_gradient(low = "white", high = "steelblue")+
+  geom_text(aes(label = scores)) +
+  theme(legend.position = "none") +
+  xlab("Average scores in each Subject") +
+  ylab("Parent Level of Education")
+```
+Children of parents who have achieved a higher level of education recorded a higher test score.
+
+### Average scores for students with/without the test preparation course for different parental education level
+
+#### Mathematics
+```{r,warning = F, message=F}
+data %>% 
+  group_by(test_prep_course, parent_education_level) %>% 
+  summarize(Mathematics = round(mean(math),1),
+            Reading = round(mean(reading),1),
+            Writing = round(mean(writing),1)) %>% 
+  ggplot(aes(test_prep_course, Mathematics, colour = test_prep_course)) +
+  geom_boxplot() +
+  facet_wrap(vars(parent_education_level)) +
+  xlab("Test Peparation Course") +
+  ylab("Mathematics Test Score") +
+  ggtitle("Mathematics") +
+  labs(colour = "Test Preparation Course")
+  
+```
+#### Reading
+```{r,warning = F, message=F}
+data %>% 
+  group_by(test_prep_course, parent_education_level) %>% 
+  summarize(Mathematics = round(mean(math),1),
+            Reading = round(mean(reading),1),
+            Writing = round(mean(writing),1)) %>% 
+  ggplot(aes(test_prep_course, Reading, colour = test_prep_course)) +
+  geom_boxplot() +
+  facet_wrap(vars(parent_education_level)) +
+  xlab("Test Peparation Course") +
+  ylab("Reading Test Score") +
+  ggtitle("Reading") +
+  labs(colour = "Test Preparation Course")
+
+```
+#### Writing
+```{r,warning = F, message=F}
+data %>% 
+  group_by(test_prep_course, parent_education_level) %>% 
+  summarize(Mathematics = round(mean(math),1),
+            Reading = round(mean(reading),1),
+            Writing = round(mean(writing),1)) %>% 
+  ggplot(aes(test_prep_course, Writing, colour = test_prep_course)) +
+  geom_boxplot() +
+  facet_wrap(vars(parent_education_level)) +
+  xlab("Test Peparation Course") +
+  ylab("Writing Test Score") +
+  ggtitle("Writing") +
+  labs(colour = "Test Preparation Course")
+
+```
+Students of Parents who have attained high education level performed better than those with lower education level regardless whether they took the test preparation test or not.
+
+### Relationship between students test scores
+```{r,warning = F, message=F}
+data %>% 
+  select(math, reading, writing) %>% 
+  cor() %>% 
+  corrplot::corrplot(method = "number")
+```
+There is a highly positive correlation between the test scores especially in reading and writing. Students who perform well in one of the subjects is likely to perform better in the rest.
+
+## Summary
+From the above analysis, we can conclude that the test preparation course have a significant effect on student performance and also children of parents with higher educational qualifications regardless of taking the test preparation course or not displayed higher scores than those whose parents have lower educational qualifications.
