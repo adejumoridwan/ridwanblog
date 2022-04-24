@@ -123,7 +123,8 @@ data %>%
   group_by(test_prep_course, parent_education_level) %>% 
   summarize(Mathematics = round(mean(math),1),
             Reading = round(mean(reading),1),
-            Writing = round(mean(writing),1)) %>% 
+            Writing = round(mean(writing),1),
+            .groups = ) %>% 
   ggplot(aes(test_prep_course, Mathematics, colour = test_prep_course)) +
   geom_boxplot() +
   facet_wrap(vars(parent_education_level)) +
