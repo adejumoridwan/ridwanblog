@@ -47,8 +47,7 @@ Those who have undergone my Python for Data Analysis track and want to go deeper
 #### Capstone Project
 - Case Study: Titanic Dataset
 
-## 4 weeks
-## #30,000
+
 
 
 

@@ -84,9 +84,3 @@ Python is currently the most popular programming language and this is due to the
 #### Capstone Projects
 - Case Study 1: 911 Calls
 - Case Study 2: Finance Data
-
-## 4 weeks
-## Starting June 6th, 2022
-## Monday-Tuesday: 9:00AM-12:00PM
-## #20,000
-

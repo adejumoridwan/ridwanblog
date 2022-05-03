@@ -70,7 +70,5 @@ SPSS, formerly known as Statistical Package for Social Science is one of the mos
 - Cronbach's Alpha 
 - Cronbach's Alpha Assumptions
 
-## 4 weeks
-## #15,000
 
 

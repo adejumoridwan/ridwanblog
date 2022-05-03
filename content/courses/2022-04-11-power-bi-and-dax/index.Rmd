@@ -64,8 +64,3 @@ SUM, COUNT, COUNTROWS, MIN, MAX, COUNTBLANK, DIVIDE, SUMX, AVERAGEX AND CALCULAT
 ## Capstone Projects:
 - Case Study 1: Adventure Sales Data
 - Case Study 2: Tokyo 2020 Summer Olympics
-
-## 4 weeks
-## Starting June 11th, 2022
-## Saturday: 9:00AM-12:00PM
-## #15,000
