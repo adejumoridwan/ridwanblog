@@ -1,5 +1,5 @@
 ---
-title: Python For Data Analysis
+title: Data Analysis with Python
 author: Adejumo Ridwan Suleiman
 date: '2022-04-13'
 slug: []
@@ -84,3 +84,4 @@ Python is currently the most popular programming language and this is due to the
 #### Capstone Projects
 - Case Study 1: 911 Calls
 - Case Study 2: Finance Data
+
